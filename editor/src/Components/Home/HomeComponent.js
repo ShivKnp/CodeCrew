@@ -5,7 +5,7 @@ import { FiCode, FiUsers, FiVideo, FiShare2 } from "react-icons/fi";
 import { Button } from "antd";
 import { ReactComponent as GithubIcon } from "./github.svg";
 
-const GITHUB_URL = "https://github.com/shivanshtiwari"; // <-- replace with your repo URL
+const GITHUB_URL = "https://github.com/ShivKnp"; // <-- replace with your repo URL
 
 const features = [
   {
