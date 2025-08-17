@@ -1,0 +1,250 @@
+/* Home page — CodeCrew
+   Modern, simple + professional. Replace the existing Home CSS with this.
+*/
+
+/* Root */
+.homeContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg,#071129 0%, #071b2b 100%);
+  color: #ffffff;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* NAV */
+.nav {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px);
+  background: rgba(255,255,255,0.01);
+}
+
+.logo {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logoMark {
+  width:44px;
+  height:44px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: linear-gradient(90deg,#7c4dff,#60a5fa);
+  color:#061224;
+  font-weight:900;
+  letter-spacing:0.6px;
+  box-shadow: 0 8px 20px rgba(96,165,250,0.08);
+}
+.logoText {
+  font-weight:800;
+  font-size:18px;
+}
+
+/* Nav actions (kept minimal: GitHub + Start) */
+.navActions {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.githubBtn {
+  color: #071029;
+  background: linear-gradient(90deg,#e6eef8,#dfefff);
+  border-radius: 999px;
+  font-weight:700;
+  border: none;
+}
+.primaryNavBtn {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5);
+  color: #061224;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(58,123,213,0.12);
+  font-weight:700;
+}
+
+/* HERO */
+.heroSection {
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  gap: 48px;
+  align-items: center;
+  padding: 72px 64px;
+}
+
+.heroLeft {
+  max-width: 780px;
+}
+.title {
+  font-size: 48px;
+  line-height: 1.02;
+  margin: 0 0 18px 0;
+  font-weight: 900;
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+}
+.subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 18px;
+  margin: 0 0 22px 0;
+  max-width: 720px;
+}
+
+/* CTA */
+.ctaRow { display:flex; gap:12px; align-items:center; margin-bottom:22px; }
+.ctaPrimary {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5);
+  color: #061224 !important;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,210,255,0.12);
+}
+.ctaGhost {
+  color: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.03);
+  border-radius: 999px;
+  padding: 10px 20px;
+  border: none;
+}
+
+/* Quick stats */
+.quickStats {
+  display:flex;
+  gap:18px;
+  margin-top: 8px;
+}
+.stat { display:flex; flex-direction:column; gap:6px; color: rgba(255,255,255,0.75); }
+.statNum { font-weight:800; font-size:18px; color: #fff; }
+.statLabel { font-size:12px; color: rgba(255,255,255,0.6); }
+
+/* HERO RIGHT MOCK */
+.heroRight { display:flex; align-items:center; justify-content:center; }
+.codeMock {
+  width: 420px;
+  border-radius: 12px;
+  overflow:hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(6,18,36,0.6), rgba(6,18,36,0.4));
+  box-shadow: 0 18px 50px rgba(2,6,23,0.6);
+}
+.codeHeader { height: 36px; display:flex; align-items:center; gap:8px; padding:8px 12px; background: rgba(255,255,255,0.02); }
+.dot { width:12px; height:12px; border-radius:999px; }
+.codeBlock {
+  padding: 22px;
+  margin: 0;
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: 13px;
+  color: #dbeafe;
+  background: transparent;
+  white-space: pre-wrap;
+}
+
+/* FEATURES */
+.featuresSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  padding: 48px 64px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: rgba(255,255,255,0.02);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.03);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  
+}
+.featureCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(2,6,23,0.5);
+}
+.featureIcon {
+  width:46px; height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5);
+  color:#061224;
+}
+.featureCard h3 { margin:0 0 8px 0; font-size:16px; color: rgba(246, 240, 240, 0.95); font-weight: 700; }
+.featureCard p { margin:0; color: rgba(255,255,255,0.8); font-size:14px; }
+
+/* INFO / ABOUT SECTION */
+.infoSection {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  padding: 28px 64px 60px;
+  max-width: 1200px;
+  margin: 0 auto 20px;
+}
+
+.infoCard {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 22px;
+  border-radius: 12px;
+  color: rgba(246, 240, 240, 0.95);
+  box-shadow: 0 12px 30px rgba(2,6,23,0.28);
+}
+.infoCard h3 { margin-top: 0; color: rgba(246, 240, 240, 0.95); }
+.bullets { padding-left: 18px; margin: 8px 0 0; }
+.langGrid { display:flex; gap:10px; margin-top:10px; }
+.lang { background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-weight:700; }
+
+/* FOOTER */
+.footer {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding: 28px 64px;
+  color: rgba(255,255,255,0.75);
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+.brandSmall { font-weight:800; margin-bottom:6px; }
+.meta { font-size:13px; opacity:0.85; }
+.footerRight { text-align:right; }
+.madeWith { font-weight:700; }
+.copy { opacity:0.8; margin-top:6px; }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .heroSection { grid-template-columns: 1fr; padding: 48px 28px; }
+  .heroRight { margin-top: 24px; }
+  .featuresSection { padding: 28px 20px; }
+  .infoSection { grid-template-columns: 1fr; padding: 20px 28px; }
+  .footer { padding: 20px 28px; flex-direction:column; gap:8px; align-items:flex-start; }
+}
+
+@media (max-width: 520px) {
+  .title { font-size: 28px; }
+  .ctaRow { flex-direction:column; align-items:stretch; gap:12px; }
+  .logoText { display:none; }
+  .nav { padding: 0 16px; }
+  .heroSection { padding: 36px 16px; }
+  .featuresSection { padding: 20px 12px; }
+}
+/* GitHub SVG sizing inside buttons */
+.githubIcon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  fill: currentColor; /* inherits color from the button */
+}
+
+/* Adjust github button spacing (optional) */
+.githubBtn .githubIcon {
+  margin-right: 10px;
+}

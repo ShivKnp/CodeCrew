@@ -1,0 +1,491 @@
+/* editor/src/Components/SideDrawer/main.module.css
+   SideDrawer — dark by default; switches to light when .lightTheme is present.
+   Replaces the existing file. No JS changes required beyond toggling .lightTheme.
+*/
+
+/* Theme + shared vars */
+:root{
+  --bg-dark: #0b1116;
+  --panel-dark: #0f1720;
+  --card-dark: #0e151b;
+  --muted-dark: #9aa6b2;
+  --accent-blue: #11d835;
+  --accent-purple: #7c4dff;
+  --glass-dark: rgba(255,255,255,0.02);
+
+  --bg-light: #f6f7fb;
+  --panel-light: #ffffff;
+  --card-light: #ffffff;
+  --muted-light: #637381;
+  --glass-light: rgba(16,24,32,0.03);
+
+  --radius: 10px;
+  --mono: 'Fira Code', Consolas, 'Courier New', monospace;
+  --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* ---------- OUTER DRAWER ---------- */
+.sideDrawer {
+  height: 100%;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.38);
+  box-sizing: border-box;
+  color: #e6eef8;
+  font-family: var(--ui-font);
+  transition: background 220ms ease, box-shadow 220ms ease, border-color 220ms ease, color 220ms ease, padding 180ms ease;
+}
+
+/* Light theme root override (applied via SideDrawer JS when theme is 'light' / 'github' / 'solarized-light') */
+.lightTheme {
+  background: var(--panel-light);
+  color: #172022;
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 12px 36px rgba(11,15,22,0.06);
+  padding: 20px; /* slightly more airy in light mode */
+}
+
+/* Keep dark default (explicit) */
+.darkTheme {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));
+  color: #e6eef8;
+}
+
+/* ---------- HEADER (sticky top bar) ---------- */
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 12px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.006), rgba(0,0,0,0.02));
+  border: 1px solid rgba(255,255,255,0.02);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+  position: sticky;
+  top: 14px;
+  z-index: 12;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+/* Header light overrides */
+.lightTheme .header {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 6px 18px rgba(11,15,22,0.04);
+}
+
+/* Title and icons */
+.title { display:flex; align-items:center; gap:8px; margin:0; font-size:16px; font-weight:800; color:inherit; }
+.titleIcon { font-size:18px; color: var(--accent-blue); }
+.actions { display:flex; gap:8px; align-items:center; }
+
+/* action buttons */
+.actionButton {
+  height:38px;
+  width:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  background: transparent;
+  color: var(--muted-dark);
+  border: none;
+  transition: background 140ms ease, transform 120ms ease, color 120ms ease;
+}
+.actionButton:hover { background: rgba(255,255,255,0.02); color: #fff; transform: translateY(-1px); }
+
+/* light mode action button color */
+.lightTheme .actionButton {
+  color: var(--muted-light);
+}
+.lightTheme .actionButton:hover { background: rgba(16,24,32,0.03); color: #0b1220; }
+
+/* active video state — keep accent but tone to match background */
+.videoActive { color: var(--accent-blue) !important; background: rgba(96,165,250,0.08) !important; }
+.lightTheme .videoActive { color: var(--accent-blue) !important; background: rgba(96,165,250,0.12) !important; }
+
+/* ---------- TOP CONTROL ROW (header + controlSection) ---------- */
+.header + .controlSection {
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.01));
+  border: 1px solid rgba(255,255,255,0.02);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02);
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+/* light overrides for top control row */
+.lightTheme .header + .controlSection {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: inset 0 -1px 0 rgba(16,24,32,0.02);
+  color: var(--muted-light);
+}
+
+/* fallback column layout */
+.controlSection { display:flex; flex-direction:column; gap:8px; }
+
+/* control label */
+.controlLabel {
+  font-size:11px;
+  color:var(--muted-dark);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.6px;
+}
+.lightTheme .controlLabel { color: var(--muted-light); }
+
+/* Compact groups (language select, invite) */
+.header + .controlSection > .languageSelect,
+.header + .controlSection .inviteInputGroup {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* ---------- ANTD SELECT TWEAKS ---------- */
+.languageSelect .ant-select-selector {
+  height: 40px !important;
+  border-radius: 8px !important;
+  background: var(--glass-dark) !important;
+  color: inherit !important;
+  display:flex !important;
+  align-items:center;
+  padding: 0 10px !important;
+  min-width: 150px;
+  font-weight:700;
+  border: 1px solid rgba(255,255,255,0.02) !important;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+/* light overrides for select */
+.lightTheme .languageSelect .ant-select-selector {
+  background: #fff !important;
+  border: 1px solid rgba(16,24,32,0.06) !important;
+  color: #172022 !important;
+}
+
+/* dropdown visual */
+.dropdownMenu { min-width:200px !important; box-shadow: 0 10px 30px rgba(2,6,23,0.32) !important; }
+.lightTheme .dropdownMenu { box-shadow: 0 10px 30px rgba(11,15,22,0.06) !important; }
+
+/* option item & content */
+.optionItem { padding:8px 12px !important; display:flex !important; align-items:center !important; }
+.optionContent { display:flex; align-items:center; gap:8px; font-family: var(--mono); }
+
+/* ---------- CHIPS ---------- */
+.chip {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+  color: var(--muted-dark);
+  font-weight:700;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+.lightTheme .chip {
+  background: rgba(16,24,32,0.02);
+  color: var(--muted-light);
+  border: 1px solid rgba(16,24,32,0.04);
+}
+.chipAccent {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  color: #071029;
+  box-shadow: 0 8px 26px rgba(124,58,237,0.08);
+}
+
+/* ---------- DIVIDER ---------- */
+.divider { height:1px; background: rgba(255,255,255,0.03); margin: 6px 0; border-radius:2px; }
+.lightTheme .divider { background: rgba(16,24,32,0.04); }
+
+/* ---------- IO / CARDS ---------- */
+.ioSection { display:flex; flex-direction:column; gap:8px; flex: 1 1 auto; min-height: 0; }
+.ioHeader { display:flex; align-items:center; gap:8px; color:var(--muted-dark); font-weight:700; }
+.lightTheme .ioHeader { color: var(--muted-light); }
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 8px 18px rgba(2,6,23,0.12);
+}
+.lightTheme .card {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 8px 18px rgba(11,15,22,0.04);
+}
+
+/* textareas (monospace) */
+.ioArea {
+  resize: vertical;
+  border-radius:8px;
+  background-color: var(--glass-dark);
+  color: #dbeafe;
+  border: 1px solid rgba(255,255,255,0.02);
+  padding: 12px;
+  font-family: var(--mono);
+  font-size:13px;
+  line-height:1.5;
+  min-height: 90px;
+  transition: box-shadow 120ms ease, transform 120ms ease, background 120ms ease, color 120ms ease;
+}
+.ioArea:focus-within { box-shadow: 0 10px 28px rgba(2,6,23,0.08); transform: translateY(-1px); }
+
+/* light overrides for ioArea */
+.lightTheme .ioArea {
+  background-color: #fff;
+  color: #172022;
+  border: 1px solid rgba(16,24,32,0.06);
+}
+.inputArea { min-height:140px; }
+.outputArea { background-color: rgba(255,255,255,0.01); }
+.lightTheme .outputArea { background-color: #fff; }
+
+/* error / output pre formatting */
+.outputPre {
+  font-family: var(--mono);
+  font-size: 13px;
+  color:#fefefe;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(0,0,0,0.06);
+  padding:10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.02);
+}
+.lightTheme .outputPre {
+  background: rgba(245,247,250,1);
+  color: #234;
+  border: 1px solid rgba(16,24,32,0.06);
+}
+
+/* invite popover */
+.invitePopoverContent { padding:12px; display:flex; flex-direction:column; gap:12px; min-width:260px; }
+.inviteHint { color:var(--muted-dark); font-size:13px; margin:0; }
+.lightTheme .inviteHint { color: var(--muted-light); }
+.inviteInputGroup { display:flex; gap:8px; align-items:center; }
+.inviteInput {
+  flex:1;
+  border-radius:8px;
+  padding:8px;
+  background: rgba(255,255,255,0.015);
+  color:inherit;
+  border:1px solid rgba(255,255,255,0.02);
+}
+.lightTheme .inviteInput {
+  background: #fff;
+  color: #172022;
+  border: 1px solid rgba(16,24,32,0.06);
+}
+.copyButton { background: var(--accent-blue); color:white; border-radius:8px; border:none; padding:8px 10px; font-weight:800; }
+.lightTheme .copyButton { background: var(--accent-blue); color: white; }
+
+/* ---------- RUN BUTTON (bottom) ---------- */
+.runSection { margin-top: auto; display:flex; gap:10px; align-items:center; padding-top:8px; }
+.runButton {
+  height:48px;
+  font-weight:800;
+  border-radius:10px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  border:none;
+  color:white;
+  width:100%;
+  box-shadow: 0 12px 26px rgba(124,58,237,0.12);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, color 140ms ease;
+}
+.runButton:hover { transform: translateY(-3px); box-shadow: 0 18px 36px rgb(2, 59, 2); }
+.runButton:disabled { opacity:0.75; transform: none; box-shadow: none; }
+
+/* light variant for run button - make it stand out with soft border and darker text */
+.lightTheme .runButton {
+  background: linear-gradient(90deg,var(--accent-purple), var(--accent-blue));
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(59,130,246,0.12);
+  border: 1px solid rgba(16,24,32,0.04);
+}
+
+/* ---------- HELPERS ---------- */
+.simpleBtn { border-radius: 6px; padding: 6px 8px; border: 1px solid rgba(255,255,255,0.03); color: var(--muted-dark); background: transparent; }
+.iconButton { display:inline-flex; align-items:center; justify-content:center; border-radius: 8px; width:36px; height:36px; color: var(--muted-dark); }
+
+/* light helper adjustments */
+.lightTheme .simpleBtn { color: var(--muted-light); border: 1px solid rgba(16,24,32,0.04); background: rgba(16,24,32,0.01); }
+.lightTheme .iconButton { color: var(--muted-light); }
+
+/* scrollbars */
+.sideDrawer::-webkit-scrollbar { width:8px; }
+.sideDrawer::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius:6px; }
+.lightTheme .sideDrawer::-webkit-scrollbar-thumb { background: rgba(16,24,32,0.06); }
+
+/* responsive */
+@media (max-width: 900px) {
+  .sideDrawer { padding:12px; }
+  .header { top: 8px; }
+  .header + .controlSection {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+  .languageSelect .ant-select-selector { min-width: 120px; }
+  .runButton { height:44px; }
+}
+
+/* accessibility focus states */
+.actionButton:focus, .copyButton:focus, .runButton:focus {
+  outline: 2px solid rgba(96,165,250,0.12);
+  outline-offset: 2px;
+}
+
+/* slight micro-interactions */
+.actionButton:hover, .chip:hover { transform: translateY(-2px); transition: transform 120ms ease; }
+
+/* ---------- Improved contrast for SideDrawer buttons (dark & light) ---------- */
+
+/* Generic shared button */
+.sideBtn,
+.actionButton,
+.copyButton,
+.simpleBtn {
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------- Dark theme (default) ---------------- */
+.sideDrawer:not(.lightTheme) .sideBtn,
+.sideDrawer:not(.lightTheme) .actionButton,
+.sideDrawer:not(.lightTheme) .copyButton,
+.sideDrawer:not(.lightTheme) .simpleBtn {
+  background: rgba(255,255,255,0.035);        /* slightly brighter than page so it reads */
+  color: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 2px 6px rgba(2,6,23,0.18), inset 0 -1px 0 rgba(0,0,0,0.06);
+}
+
+/* Dark hover: subtle lift, same hue */
+.sideDrawer:not(.lightTheme) .sideBtn:hover,
+.sideDrawer:not(.lightTheme) .actionButton:hover,
+.sideDrawer:not(.lightTheme) .copyButton:hover,
+.sideDrawer:not(.lightTheme) .simpleBtn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.28), inset 0 -2px 0 rgba(0,0,0,0.08);
+}
+
+/* ---------------- Light theme overrides ---------------- */
+.lightTheme .sideBtn,
+.lightTheme .actionButton,
+.lightTheme .copyButton,
+.lightTheme .simpleBtn {
+  background: #f3f4f6;                          /* soft gray, not pure white */
+  color: #0b1220;
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 4px 10px rgba(2,6,23,0.04);
+}
+
+/* Light hover: subtle darker gray */
+.lightTheme .sideBtn:hover,
+.lightTheme .actionButton:hover,
+.lightTheme .copyButton:hover,
+.lightTheme .simpleBtn:hover {
+  transform: translateY(-2px);
+  background: #eceff1;
+  border-color: rgba(16,24,32,0.08);
+  box-shadow: 0 6px 16px rgba(2,6,23,0.06);
+}
+
+/* ---------------- Run button (full width in drawer) ---------------- */
+.runSection .runButton {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
+}
+
+/* Run button dark: mild accent tint so it's visible (no hue shift on hover) */
+.sideDrawer:not(.lightTheme) .runSection .runButton {
+  background: linear-gradient(90deg, rgba(17,216,53,0.10), rgba(124,77,255,0.08)); /* subtle tint */
+  color: #eaf7ee;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 22px rgba(2,6,23,0.28);
+}
+
+/* Run hover dark: keep same gradient, just lift */
+.sideDrawer:not(.lightTheme) .runSection .runButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(2,6,23,0.36);
+  background: linear-gradient(90deg, rgba(17,216,53,0.14), rgba(124,77,255,0.10));
+}
+
+/* Run button light: stronger accent contrast on light background */
+.lightTheme .runSection .runButton {
+  background: linear-gradient(90deg, var(--accent-2), var(--accent-blue));
+  color: #fff;
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 8px 24px rgba(11,15,22,0.06);
+}
+.lightTheme .runSection .runButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(11,15,22,0.10);
+}
+
+/* ---------------- Active / selected state (video on, selected) ---------------- */
+.videoActive {
+  border: 1px solid rgba(96,165,250,0.12) !important;
+  box-shadow: 0 6px 18px rgba(96,165,250,0.06) !important;
+}
+
+/* ---------------- Small / icon-only variant ---------------- */
+.sideDrawer .actionButton.icon,
+.sideDrawer .sideBtn.icon {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* ---------------- Disabled states ---------------- */
+.sideDrawer .sideBtn:disabled,
+.sideDrawer .actionButton:disabled,
+.sideDrawer .copyButton:disabled,
+.sideDrawer .simpleBtn:disabled,
+.sideDrawer .runSection .runButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------------- Accessibility focus ---------------- */
+.sideDrawer .sideBtn:focus,
+.sideDrawer .actionButton:focus,
+.sideDrawer .runSection .runButton:focus {
+  outline: 3px solid rgba(96,165,250,0.12);
+  outline-offset: 3px;
+}

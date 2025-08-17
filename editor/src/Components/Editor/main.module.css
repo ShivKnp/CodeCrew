@@ -1,0 +1,296 @@
+/* Editor panel — LeetCode / HackerRank inspired look
+   Replace editor/src/Components/Editor/main.module.css with this.
+*/
+
+/* Theme & shared variables */
+:root{
+  --bg-dark: #0b1117;
+  --bg-800: #0f1720;
+  --panel-dark: #0b1220;
+  --muted-dark: #9aa6b2;
+  --accent-1: #60a5fa; /* cool blue */
+  --accent-2: #7c3aed; /* purple */
+  --glass-dark: rgba(255,255,255,0.02);
+  --card-dark: #0e151b;
+  --radius: 10px;
+  --mono: 'Fira Code', Consolas, 'Courier New', monospace;
+  --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+
+  /* light-mode variables */
+  --bg-light: #f6f7fb;
+  --panel-light: #ffffff;
+  --muted-light: #637381;
+  --glass-light: rgba(16,24,32,0.03);
+}
+
+/* root container */
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--bg-dark), var(--bg-800));
+  color: #e6eef8;
+  font-family: var(--ui-font);
+  box-sizing: border-box;
+}
+
+/* Light theme applied to root: used by EditorComponent when theme is light-like */
+.lightTheme {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  color: #1f2937;
+}
+
+/* main area layout */
+.mainContent {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  height: calc(100vh - 0px);
+  box-sizing: border-box;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* Resizable editor panel */
+.resizableEditor {
+  flex: none;               /* re-resizable sets inline width */
+  width: 72%;
+  min-width: 420px;
+  max-width: 86%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.6);
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* Light-mode changes for the resizable editor */
+.lightResizable {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 12px 36px rgba(11,15,22,0.06);
+}
+
+/* Editor wrapper */
+.editorWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Top control bar (LeetCode-style) */
+.controlBar {
+  height: 56px;
+  padding: 10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.007), rgba(0,0,0,0.02));
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Light-mode control bar override (applied via EditorComponent) */
+.lightControlBar {
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-bottom: 1px solid rgba(16,24,32,0.06);
+  color: var(--muted-light);
+  box-shadow: 0 6px 18px rgba(11,15,22,0.04);
+}
+
+/* file tabs */
+.fileTabs { display:flex; gap:8px; align-items:center; }
+.tab, .tabActive, .tabNew {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight:700;
+  cursor:pointer;
+  transition: all 140ms ease;
+}
+.tab { color: var(--muted-dark); background: transparent; border: 1px solid rgba(255,255,255,0.02); }
+.tabActive { color:#fff; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06); }
+.tabNew { color: var(--muted-dark); border: 1px dashed rgba(255,255,255,0.02); }
+
+/* Light overrides for tabs */
+.lightTheme .tab { color: var(--muted-light); background: transparent; border: 1px solid rgba(16,24,32,0.04); }
+.lightTheme .tabActive { color: #071029; background: rgba(243,244,246,0.8); border: 1px solid rgba(16,24,32,0.06); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.02); }
+
+/* control buttons */
+.controlButton {
+  color: inherit;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.controlButton:hover { background: rgba(255,255,255,0.02); transform: translateY(-1px); }
+
+/* editor host area: Monaco container */
+.editorContainer {
+  flex: 1 1 auto;
+  min-height: 0; /* critical for flex shrink */
+  overflow: hidden;
+  background: transparent;
+}
+
+/* bottom panels */
+.bottomPanels {
+  height: 170px;
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border-top:1px solid rgba(255,255,255,0.03);
+  box-sizing:border-box;
+  background: linear-gradient(180deg, rgba(255,255,255,0.005), rgba(0,0,0,0.02));
+}
+.terminal {
+  flex:1;
+  border-radius:10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.18));
+  border:1px solid rgba(255,255,255,0.03);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.terminalHeader { padding:8px 12px; font-weight:700; color:var(--muted-dark); border-bottom:1px solid rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:space-between; }
+.terminalBody { padding:12px; overflow:auto; font-family: var(--mono); font-size:13px; color:#dbeafe; background: transparent; }
+
+/* Light-mode terminal overrides */
+.lightTheme .bottomPanels { background: linear-gradient(180deg, #ffffff, #fbfcfe); border-top: 1px solid rgba(16,24,32,0.06); }
+.lightTheme .terminal { background: #fff; border: 1px solid rgba(16,24,32,0.06); box-shadow: 0 8px 18px rgba(11,15,22,0.04); }
+.lightTheme .terminalBody { color: #1f2937; }
+
+/* sidebar (right) */
+.sidebar {
+  flex: 1 1 auto;
+  min-width: 300px;
+  max-width: 40%;
+  height: 100%;
+  overflow: auto;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* Light-mode sidebar override */
+.lightTheme .sidebar {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 12px 36px rgba(11,15,22,0.06);
+}
+
+/* run button (editor-level button can be styled via SideDrawer CSS) */
+.runButton {
+  height:48px;
+  font-weight:800;
+  border-radius:10px;
+  background: linear-gradient(90deg, var(--accent-2), #8b5cf6);
+  border:none;
+  color:white;
+  width:100%;
+  box-shadow: 0 12px 28px rgba(124,58,237,0.12);
+}
+
+/* Light-mode run button */
+.lightTheme .runButton {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  border: 1px solid rgba(16,24,32,0.04);
+}
+
+/* small responsive tweaks */
+@media (max-width: 980px) {
+  .mainContent { flex-direction: column; padding: 12px; }
+  .resizableEditor { width: 100% !important; min-width: 0; }
+  .sidebar { width: 100%; min-width: 0; order: 2; }
+  .editorContainer { min-height: 48vh; }
+  .bottomPanels { flex-direction: column; height: auto; }
+}
+
+/* scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 6px; }
+.lightTheme ::-webkit-scrollbar-thumb { background: rgba(16,24,32,0.06); }
+
+/* accessibility focus */
+.controlButton:focus, .iconButton:focus { outline: 2px solid rgba(124,77,255,0.14); outline-offset:2px; box-shadow: 0 8px 18px rgba(124,77,255,0.05); }
+/* Simplified, understated control buttons (replace previous controlButton styles) */
+
+/* Base pill-like button but subtle and flat */
+.controlButton {
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.02); /* faint glass */
+  color: inherit;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none; /* remove heavy shadow */
+  transition: background 140ms ease, transform 120ms ease, border-color 120ms ease;
+  cursor: pointer;
+}
+
+/* compact / icon-only variant */
+.controlButton.icon {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+/* text / dropdown-looking variant (lighter) */
+.controlButton[type="text"],
+.controlButton.text {
+  background: transparent;
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+
+/* Hover: subtle background lift, no color shift */
+.controlButton:hover {
+  background: rgba(255,255,255,0.04);
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Focus: accessible but subtle */
+.controlButton:focus {
+  outline: 3px solid rgba(96,165,250,0.10);
+  outline-offset: 2px;
+}
+
+/* Icons inside buttons */
+.controlButton .anticon,
+.controlButton svg {
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+/* Light-mode variant (keeps consistent contrast) */
+.lightControlBar .controlButton {
+  background: rgba(16,24,32,0.02);
+  color: inherit;
+  border: 1px solid rgba(16,24,32,0.04);
+}
+.lightControlBar .controlButton:hover {
+  background: rgba(16,24,32,0.04);
+  border-color: rgba(16,24,32,0.06);
+}
+
+/* Responsive: slightly smaller on narrow screens */
+@media (max-width: 700px) {
+  .controlButton { height: 34px; padding: 6px 8px; border-radius: 7px; }
+  .controlButton.icon { width: 34px; }
+  .controlButton .anticon, .controlButton svg { font-size: 13px; }
+}
