@@ -810,4 +810,49 @@
   .mobileContent::-webkit-scrollbar { width: 8px; }
   .mobileContent::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 6px; }
 }
+/* wrapper class applied via overlayClassName */
+.inviteOverlay {
+  /* make sure the wrapper itself is high in the stacking context too (defensive) */
+  z-index: 1900 !important;
+}
+
+/* stronger, readable popover content */
+.invitePopoverContent {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 260px;
+
+  /* Give a solid, contrasted background instead of near-transparent */
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.12));
+  /* or use your existing vars for darker card: background: var(--card-dark); */
+
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 12px 40px rgba(2,6,23,0.48);
+}
+
+/* make the invite input more readable on dark theme */
+.inviteInput {
+  flex: 1;
+  border-radius: 8px;
+  padding: 8px;
+  /* use a clearer "glass" or panel color, not almost-transparent */
+  background: var(--glass-dark); /* previously you used rgba(255,255,255,0.015) */
+  color: inherit;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* light theme overrides if needed */
+.lightTheme .invitePopoverContent {
+  background: linear-gradient(180deg, #ffffff, #fbfcfe);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 10px 30px rgba(11,15,22,0.06);
+}
+.lightTheme .inviteInput {
+  background: #fff;
+  color: #172022;
+  border: 1px solid rgba(16,24,32,0.06);
+}
 
