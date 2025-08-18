@@ -93,9 +93,27 @@ const SideDrawer = (props) => {
                     Code Companion
                 </h3>
                 <div className={styles.actions}>
-                    <Popover content={inviteContent} trigger="click" placement="bottomRight">
-                        <Button type="text" icon={<ShareAltOutlined />} className={styles.actionButton} />
-                    </Popover>
+                    <Popover
+  content={inviteContent}
+  trigger="click"
+  placement="bottomRight"
+  /* Ensure the popover renders inside the mobile sheet on small screens,
+     and otherwise attach to body. This prevents it being placed under the sheet. */
+  getPopupContainer={(triggerNode) => {
+    try {
+      // prefer placing the popup inside mobileContent when available (keeps it above)
+      return triggerNode?.closest(`.${styles.mobileContent}`) || document.body;
+    } catch (e) {
+      return document.body;
+    }
+  }}
+  /* Force a higher z-index so it sits above .mobileSheet (1700) */
+  overlayStyle={{ zIndex: 1900 }}
+  /* CSS module class applied to the popover wrapper (AntD prop name is overlayClassName for v4) */
+  overlayClassName={styles.inviteOverlay}
+>
+  <Button type="text" icon={<ShareAltOutlined />} className={styles.actionButton} />
+</Popover>
                     <Button 
                         type={videoChat ? "default" : "text"} 
                         icon={<VideoCameraOutlined />} 
