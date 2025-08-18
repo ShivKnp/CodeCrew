@@ -22,3 +22,38 @@ html,body,#root{
   background: var(--bg-dark);
   color: #e6eef8;
 }
+
+/* when SideDrawer uses .mobileSheet we set a --mobile-sheet-height; default = 0 */
+:root {
+  --mobile-sheet-height: 0px;
+}
+
+/* when mobile sheet is active (JS can set this var) */
+.mobile-sheet-active {
+  --mobile-sheet-height: 56vh; /* value should match SideDrawer .mobileSheet max-height */
+}
+/* Ensure the Select popup can't be hidden under the mobile sheet or video overlay.
+   Lightweight, minimal changes so desktop visuals aren't affected. */
+.codecrew-lang-dropdown {
+  z-index: 3000 !important;        /* above mobileSheet (1700) and video (1900) */
+  pointer-events: auto !important;
+}
+
+/* Only on small screens make the popup use white background and dark text for legibility */
+@media (max-width: 900px) {
+  /* match AntD dropdown menu nodes without clobbering desktop */
+  .codecrew-lang-dropdown .rc-select-dropdown,
+  .codecrew-lang-dropdown .rc-virtual-list-holder-inner,
+  .codecrew-lang-dropdown .rc-select-item-option {
+    background: #ffffff !important;
+    color: #172022 !important;
+    font-family: var(--mono) !important;
+  }
+
+  /* make the visible selector inside the sheet look normal on mobile */
+  .mobileSheet .ant-select-selector,
+  .languageSelect .ant-select-selector {
+    background: #ffffff !important;
+    color: #172022 !important;
+  }
+}

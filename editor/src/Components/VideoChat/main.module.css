@@ -346,3 +346,72 @@
 
 /* small utility */
 .no-drag { user-select: none; }
+/* ---------- Mobile / small-screen improvements for VideoChat ---------- */
+
+/* Make floating video less intrusive on phones */
+@media (max-width: 900px) {
+  .videoContainer {
+    width: 340px;
+    height: 200px;
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .localVideo { width: 30%; min-width: 100px; }
+  .controls { gap: 10px; padding: 6px 10px; bottom: 8px; }
+  .controlButton { width: 40px; height: 40px; font-size: 14px; }
+}
+
+/* On phones: stretch to nearly full width and reduce vertical footprint */
+@media (max-width: 480px) {
+  .videoContainer {
+    width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    height: 220px;
+    border-radius: 10px;
+    transform: none !important;
+  }
+
+  .videoContainer.maximized { width: calc(100% - 20px); height: 60vh; left: 10px; transform: none; }
+
+  .remoteVideo { object-fit: cover; }
+  .localVideo {
+    width: 28%;
+    min-width: 90px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .drag-handle { height: 36px; }
+  .toggleButton { width: 34px; height: 34px; top: 8px; right: 8px; }
+
+  .controls { bottom: 8px; padding: 6px 8px; gap: 8px; }
+  .controlButton { width: 40px; height: 40px; }
+  .startButton { padding: 10px 14px; border-radius: 22px; font-size: 14px; }
+
+  .connectionStatus { left: 8px; top: 8px; padding: 4px 8px; font-size: 12px; }
+}
+
+/* Ensure resize handles remain accessible when using keyboard or touch */
+
+
+/* ensure floating video sits above the mobile bottom sheet by using the CSS var */
+.videoContainer {
+  /* existing properties... keep them */
+  bottom: calc(var(--mobile-sheet-height, 0px) + 22px); /* adjust automatically when sheet active */
+  right: 20px;
+  z-index: 2000; /* above editor (editor has lower z-index) and above most content */
+}
+
+/* fallback for desktop: if var not set it becomes 22px as before */
+@media (min-width: 901px) {
+  .videoContainer { bottom: 22px; right: 20px; }
+}
+
+/* visual hint when draggable is disabled on small screens */
+@media (max-width: 700px) {
+  .videoContainer .drag-handle { cursor: default; }
+}
+

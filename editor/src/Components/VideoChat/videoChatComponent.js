@@ -10,7 +10,6 @@ import {
   FaExpand,
   FaCompress
 } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
 
 const VideoChatComponent = props => {
     const { 
@@ -24,13 +23,13 @@ const VideoChatComponent = props => {
         toggleAudio,
         createOffer,
         connecting,
-        handleVideoChat
+        handleVideoChat,
+        isMobile
     } = props;
 
     const [maximized, setMaximized] = React.useState(false);
 
     // ensure draggableRef exists and points at the DOM node
-    // when maximizing, size/position the container to match the editor area
     React.useEffect(() => {
       const node = draggableRef && draggableRef.current ? draggableRef.current : null;
       if (!node) return;
@@ -39,7 +38,6 @@ const VideoChatComponent = props => {
         const editorEl = document.querySelector('.editorContainer') || document.querySelector('.resizableEditor') || document.documentElement;
         const rect = editorEl.getBoundingClientRect();
 
-        // apply inline styles so it matches the editor area exactly
         node.style.position = 'fixed';
         node.style.left = `${Math.round(rect.left)}px`;
         node.style.top = `${Math.round(rect.top)}px`;
@@ -47,10 +45,9 @@ const VideoChatComponent = props => {
         node.style.height = `${Math.round(rect.height)}px`;
         node.style.right = 'auto';
         node.style.bottom = 'auto';
-        // ensure we don't carry any dragging transform through
         node.style.transform = 'none';
+        node.classList.add(styles.maximized);
       } else {
-        // restore to bottom-right default (allow CSS to handle other properties)
         node.style.left = '';
         node.style.top = '';
         node.style.width = '';
@@ -58,19 +55,24 @@ const VideoChatComponent = props => {
         node.style.right = '20px';
         node.style.bottom = '22px';
         node.style.transform = '';
-        // keep position fixed so CSS still applies fixed placement
         node.style.position = 'fixed';
+        node.classList.remove(styles.maximized);
       }
     }, [maximized, draggableRef]);
 
+    // Disable dragging on smaller screens — mobile UX is bottom sheet like
+    const draggableDisabled = maximized || !!isMobile;
+
     return (
-        <Draggable 
-            nodeRef={draggableRef} 
-            handle=".drag-handle"
-            bounds="parent"
-            cancel=".no-drag"
-            disabled={maximized}              /* disable drag while maximized */
-        >
+         <Draggable
+      nodeRef={draggableRef}
+      handle=".drag-handle"
+      bounds="parent"
+      cancel=".no-drag"
+      disabled={draggableDisabled}
+      enableUserSelectHack={true}
+    >
+
             <div 
                 ref={draggableRef} 
                 className={`${styles.videoContainer} ${maximized ? styles.maximized : ''}`}
@@ -88,6 +90,7 @@ const VideoChatComponent = props => {
                 <button 
                     className={`${styles.toggleButton} no-drag`}
                     onClick={() => setMaximized(!maximized)}
+                    aria-label={maximized ? "Restore video" : "Maximize video"}
                 >
                     {maximized ? <FaCompress size={14} /> : <FaExpand size={14} />}
                 </button>

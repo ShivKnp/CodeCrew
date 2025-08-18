@@ -294,3 +294,175 @@
   .controlButton.icon { width: 34px; }
   .controlButton .anticon, .controlButton svg { font-size: 13px; }
 }
+/* ---------- Mobile / small-screen improvements for Editor ---------- */
+
+/* Touch-friendly sizing and stacking */
+@media (max-width: 900px) {
+  .mainContent {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    height: auto;
+  }
+
+  .resizableEditor {
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    order: 2;
+    padding: 12px;
+  }
+
+  .editorContainer {
+    min-height: 52vh;
+  }
+
+  .bottomPanels { flex-direction: column; height: auto; }
+}
+
+/* Narrow / phone layout tweaks */
+@media (max-width: 700px) {
+  .controlBar {
+    height: 48px;
+    padding: 8px;
+    gap: 8px;
+    overflow-x: auto;                     /* allow horizontal scroll for controls */
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .controlBar > .ant-space {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .controlButton {
+    height: 40px;
+    min-width: 44px;                      /* touch-friendly */
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+
+  .controlButton .anticon, .controlButton svg {
+    font-size: 14px;
+  }
+
+  /* Keep the editor full height inside its wrapper */
+  .editorContainer, .editorWrapper {
+    min-height: 48vh;
+    height: auto;
+  }
+
+  /* Ensure Monaco fills the available space */
+  .editorContainer .monaco-editor,
+  .editorContainer .monaco-editor .overflow-guard,
+  .editorContainer .monaco-editor .monaco-editor-background {
+    height: 100% !important;
+    min-height: 48vh !important;
+  }
+
+  .fileTabs { display: none; } /* optional: keeps the control bar compact */
+  .runButton { height: 44px; font-size: 15px; }
+}
+
+/* Extra-narrow phones: condense padding & scale fonts */
+@media (max-width: 480px) {
+  .controlBar { height: 44px; padding: 6px; gap: 6px; }
+  .controlButton { height: 40px; min-width: 40px; padding: 6px; font-size: 12px; }
+  .controlButton .anticon, .controlButton svg { font-size: 13px; }
+
+  /* Make control labels less dominant: allow scroll instead of wrapping */
+  .controlBar * { white-space: nowrap; }
+
+  .sidebar { padding: 10px; }
+  .editorContainer { min-height: 54vh; }
+
+  /* Slightly smaller typographic scale for mobile */
+  :root {
+    --ui-font-size: 14px;
+  }
+
+  /* Improve scroll thumb visibility on dark mobile */
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.09); }
+}
+
+/* Ensure interactive targets meet touch guidelines on small screens */
+@media (max-width: 700px) {
+  .controlButton,
+  .iconButton,
+  .actionButton,
+  .runButton {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+/* ensure control bar can scroll horizontally on narrow screens */
+.controlBar {
+  height: 56px;
+  padding: 10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start; /* left-align on small screens */
+  gap:12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.007), rgba(0,0,0,0.02));
+  overflow-x: auto; /* enable scrolling */
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+
+/* hide default scrollbar lightly and keep content accessible */
+.controlBar::-webkit-scrollbar { height: 8px; }
+.controlBar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 6px; }
+
+/* Monaco wrapper: ensure it fills available height on narrow devices */
+.editorContainer {
+  flex: 1 1 auto;
+  min-height: 0; /* critical for flex shrink */
+  overflow: hidden;
+  background: transparent;
+  display: block;
+}
+
+/* make sure Monaco editor takes full height inside the container */
+.editorContainer .monaco-editor,
+.editorContainer .monaco-editor .overflow-guard,
+.editorContainer .monaco-editor .monaco-editor-background {
+  height: 100% !important;
+  min-height: 48vh !important;
+}
+
+/* Sidebar collapse to bottom-sheet on very small screens */
+@media (max-width: 900px) {
+  .mainContent { flex-direction: column; padding: 12px; }
+  .resizableEditor { width: 100% !important; min-width: 0; }
+  .sidebar { width: 100%; min-width: 0; order: 2; margin-top: 12px; }
+  .editorContainer { min-height: 48vh; }
+}
+
+/* Further small-screen improvements */
+@media (max-width: 700px) {
+  .controlBar { height: 48px; padding: 8px; gap: 8px; }
+  .controlBar > .ant-space { display: inline-flex; align-items: center; }
+  .controlButton { min-width: 44px; height: 40px; }
+  .editorContainer { min-height: 54vh; }
+}
+
+/* when the mobile bottom-sheet is active we add bottom padding so editor stays visible */
+.mobile-sheet-active .container {
+  padding-bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
+}
+
+/* and if you want the editor wrapper to shrink nicely on mobile */
+@media (max-width: 900px) {
+  .container { min-height: 100vh; box-sizing: border-box; }
+  .mainContent { padding-bottom: 0; }
+}

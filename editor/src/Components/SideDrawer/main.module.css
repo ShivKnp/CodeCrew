@@ -489,3 +489,325 @@
   outline: 3px solid rgba(96,165,250,0.12);
   outline-offset: 3px;
 }
+/* ---------- Mobile improvements for SideDrawer ---------- */
+
+/* Collapse and stack for tablets & phones */
+@media (max-width: 900px) {
+  .sideDrawer {
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .header {
+    position: relative;
+    top: 0;
+    padding: 10px;
+  }
+
+  .header + .controlSection {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Make language select full width */
+  .languageSelect { width: 100%; }
+  .languageSelect .ant-select-selector { min-width: 100% !important; }
+
+  .inviteInputGroup { gap: 6px; }
+  .inviteInput { display: none; } /* hide long url field on small screens */
+  .copyButton { width: 44px; height: 44px; padding: 0; } /* compact copy */
+
+  .ioSection { gap: 8px; }
+  .ioArea { font-size: 13px; padding: 10px; min-height: 100px; }
+  .inputArea { min-height: 120px; }
+
+  .runSection { margin-top: 12px; padding-top: 8px; }
+}
+
+/* Phones — larger touch targets and simplified visuals */
+@media (max-width: 480px) {
+  .sideDrawer { padding: 10px; gap: 10px; }
+  .title { font-size: 15px; }
+  .actionButton { width: 44px; height: 44px; }
+  .optionContent { gap: 6px; font-size: 14px; }
+  .divider { margin: 8px 0; }
+
+  /* Make the run button sit at bottom, always visible */
+  .runSection { margin-top: 8px; }
+  .runSection .runButton { height: 46px; font-size: 15px; }
+
+  /* Improve textarea line height & readability */
+  .ioArea { line-height: 1.45; font-size: 14px; }
+}
+
+/* Accessibility focus improvements on mobile */
+@media (max-width: 700px) {
+  .copyButton:focus, .runSection .runButton:focus {
+    outline: 3px solid rgba(96,165,250,0.14);
+    outline-offset: 2px;
+  }
+}
+/* Mobile bottom-sheet variant for SideDrawer */
+.mobileSheet {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  width: calc(100% - 20px);
+  max-width: calc(100% - 20px);
+  border-radius: 12px;
+  z-index: 1700;            /* below the video (video will be 1900+) */
+  padding: 12px;
+  box-shadow: 0 28px 70px rgba(2,6,23,0.6);
+  background: linear-gradient(180deg, rgba(6,10,15,0.95), rgba(6,10,15,0.92));
+  max-height: 54vh;        /* important: prevents full-screen covering */
+  overflow: auto;          /* allow scroll inside the sheet */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* keep Run button inside flow and sticky near bottom of sheet */
+.mobileSheet .runSection {
+  position: sticky;
+  bottom: 8px;
+  margin-top: 8px;
+  background: transparent;
+  padding-top: 8px;
+}
+
+/* reduce paddings so inner cards don't collide on tiny screens */
+.mobileSheet .ioSection { gap: 6px; }
+.mobileSheet .ioArea { min-height: 88px; padding: 10px; font-size: 14px; }
+
+/* small-screen tweak to ensure icons and inputs don't overlap */
+@media (max-width: 420px) {
+  .mobileSheet { max-height: 56vh; padding: 10px; }
+  .mobileSheet .header { padding: 10px; }
+  .mobileSheet .controlSection { padding: 8px 0; }
+  .mobileSheet .ioArea { min-height: 80px; }
+}
+
+/* ---------- Mobile bottom-sheet (scrollable content) ---------- */
+.mobileSheet {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  width: calc(100% - 20px);
+  max-width: calc(100% - 20px);
+  border-radius: 12px;
+  z-index: 1700;
+  padding: 12px;
+  box-shadow: 0 28px 70px rgba(2,6,23,0.6);
+  background: linear-gradient(180deg, rgba(6,10,15,0.95), rgba(6,10,15,0.92));
+  max-height: 54vh;       /* <-- caps the sheet height so it doesn't cover editor fully */
+  overflow: hidden;       /* content itself is scrollable (see .mobileContent) */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* The middle area becomes scrollable inside the sheet so header + run button remain visible */
+.mobileContent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+  overflow: auto;
+  max-height: calc(54vh - 120px); /* 54vh sheet height minus space reserved for header + run */
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* Ensure any inner cards have breathing room */
+.mobileSheet .card, .mobileSheet .ioSection, .mobileSheet .controlSection {
+  margin-bottom: 6px;
+}
+
+/* Make run section sticky at bottom of the sheet (always reachable) */
+.mobileSheet .runSection {
+  position: sticky;
+  bottom: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  background: linear-gradient(180deg, rgba(6,10,15,0.0), rgba(6,10,15,0.02));
+  z-index: 1750;
+}
+
+/* Slightly reduce vertical spacing on tiny screens */
+@media (max-width: 420px) {
+  .mobileSheet { max-height: 56vh; padding: 10px; }
+  .mobileContent { max-height: calc(56vh - 116px); gap: 8px; }
+  .mobileSheet .ioArea { min-height: 78px; padding: 10px; font-size: 14px; }
+  .mobileSheet .languageSelect .ant-select-selector { min-height: 40px !important; }
+  .mobileSheet .header { padding: 10px; }
+}
+
+/* make inner scrollbars less intrusive on mobile */
+.mobileContent::-webkit-scrollbar { width: 8px; }
+.mobileContent::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 6px; }
+
+/* accessibility */
+.mobileSheet .runButton:focus { outline: 3px solid rgba(96,165,250,0.12); outline-offset: 2px; }
+
+/* ======================
+   Desktop-safe layout fixes
+   (these always apply)
+   ====================== */
+
+/* Ensure IO sections stack cleanly on desktop and never overlap */
+.ioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;                /* don't shrink/expand weirdly inside flex parents */
+  box-sizing: border-box;
+}
+
+/* Ensure textarea / output fill their card and use box-sizing */
+.ioArea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+/* Ensure run section behaves normally on desktop */
+.runSection {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 8px;
+}
+
+/* Defensive: keep header and control sections normal */
+.header, .controlSection {
+  position: relative;
+  z-index: auto;
+}
+
+/* ------------------------------
+   Mobile-only: <= 420px (iPhone SE)
+/* ===== Desktop-safe defaults (always apply) ===== */
+
+/* Ensure IO sections stack cleanly on desktop and never overlap */
+.ioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+  box-sizing: border-box;
+}
+
+/* Textareas/output are full width on desktop and not forced to a fixed height */
+.ioArea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 90px; /* reasonable desktop fallback */
+}
+
+/* Keep the run section normal on desktop (no sticky/reserved area) */
+.runSection {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 8px;
+  position: relative;
+  bottom: auto;
+  z-index: auto;
+}
+
+/* Defensive reset: mobile helper classes should be inert on desktop
+   (If markup always includes .mobileContent for ease, this prevents desktop leakage) */
+.mobileContent {
+  /* default: act as a normal flow container on desktop */
+  display: block;
+  overflow: visible;
+  max-height: none;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+
+/* desktop: if a mobileSheet class was accidentally present, neutralize it */
+.mobileSheet {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: auto;
+  max-width: none;
+  border-radius: inherit;
+  z-index: auto;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Optional: make sure the drawer itself is not forcing a scroll on desktop */
+.sideDrawer {
+  overflow: visible; /* desktop should not scroll the whole page through the drawer */
+}
+
+/* ===== Mobile-only behavior: <= 420px (iPhone SE and similar) ===== */
+@media (max-width: 420px) {
+
+  /* Mobile bottom-sheet — only applied on tiny phones */
+  .mobileSheet {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+    border-radius: 12px;
+    z-index: 1700;
+    padding: 12px;
+    box-shadow: 0 28px 70px rgba(2,6,23,0.6);
+    background: linear-gradient(180deg, rgba(6,10,15,0.95), rgba(6,10,15,0.92));
+    max-height: 54vh;       /* caps the sheet height so it doesn't cover editor fully */
+    overflow: hidden;       /* content scroll handled by .mobileContent */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* The middle area becomes the only scrollable region inside the sheet.
+     Header and Run button remain visible and won't overlap content */
+  .mobileContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 6px;
+    overflow: auto;
+    max-height: calc(54vh - 120px); /* 54vh minus header+run reserved space */
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
+
+  /* Slightly reduce paddings so inner cards don't collide on tiny screens */
+  .mobileSheet .card,
+  .mobileSheet .ioSection,
+  .mobileSheet .controlSection {
+    margin-bottom: 6px;
+  }
+
+  /* Make run section sticky at the bottom so user can always reach it */
+  .mobileSheet .runSection {
+    position: sticky;
+    bottom: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    background: linear-gradient(180deg, rgba(6,10,15,0.0), rgba(6,10,15,0.02));
+    z-index: 1750;
+  }
+
+  /* Reduce vertical spacing on tiny phones */
+  .mobileContent { gap: 8px; }
+  .mobileSheet .ioArea { min-height: 78px; padding: 10px; font-size: 14px; }
+  .mobileSheet .languageSelect .ant-select-selector { min-height: 40px !important; }
+
+  /* nice scrollbars on iOS */
+  .mobileContent::-webkit-scrollbar { width: 8px; }
+  .mobileContent::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 6px; }
+}
+

@@ -144,8 +144,9 @@ class VideoChat extends Component {
         this.setState({ controls: { ...this.state.controls, audio: !controls.audio } });
     }
 
-    render() {
+        render() {
         const { controls, peerConnected, gotMediaDevice, connecting } = this.state;
+        const { isMobile } = this.props; // passed from EditorComponent
         return (
             <VideoChatComponent
                 draggableRef={this.draggableRef}
@@ -159,9 +160,11 @@ class VideoChat extends Component {
                 toggleAudio={this.toggleAudio}
                 createOffer={this.createOffer}
                 handleVideoChat={this.handleVideoChat}
+                isMobile={isMobile}
             />
         );
     }
+
 }
 
 export default VideoChat;

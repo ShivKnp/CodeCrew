@@ -41,6 +41,14 @@ const EditorComponent = (props) => {
   const editorRef = useRef(null);
   const containerRef = useRef(null);
 
+  // detect mobile-ish widths so we can change layout/behavior
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   // Light themes list — keep consistent with SideDrawer
   const lightThemes = ['vs', 'light', 'github', 'solarized-light'];
   const isLight = lightThemes.includes(theme);
@@ -256,6 +264,21 @@ const EditorComponent = (props) => {
     </div>
   );
 
+  // Resizable config: on mobile we want full width and no side resize handle
+  const resizableProps = isMobile
+    ? {
+        defaultSize: { width: '100%', height: '100%' },
+        minWidth: '100%',
+        maxWidth: '100%',
+        enable: { right: false }
+      }
+    : {
+        defaultSize: { width: '70%', height: '100%' },
+        minWidth: '50%',
+        maxWidth: '85%',
+        enable: { right: true }
+      };
+
   return (
     <div className={`${styles.container} ${isLight ? styles.lightTheme : styles.dark}`}>
       {videoChat && (
@@ -264,15 +287,13 @@ const EditorComponent = (props) => {
           videoSocket={videoSocket}
           handleVideoChat={handleVideoChat}
           handleVideoSocket={handleVideoSocket}
+          isMobile={isMobile}
         />
       )}
       
       <div className={styles.mainContent}>
         <Resizable
-          defaultSize={{ width: '70%', height: '100%' }}
-          minWidth="50%"
-          maxWidth="85%"
-          enable={{ right: true }}
+          {...resizableProps}
           className={`${styles.resizableEditor} ${isLight ? styles.lightResizable : ''}`}
           onResize={() => {
             if (editorRef.current) {
