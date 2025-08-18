@@ -1,11 +1,11 @@
-/* VideoChat main.module.css
-   Restores draggable + resizable styling expected by VideoChatComponent.
-   - Use with the VideoChatComponent code you provided.
-   - Contains dark-mode defaults and lightTheme overrides.
+/* VideoChat — cleaned & compact
+   Drop into VideoChat/main.module.css
 */
 
-/* Theme tokens */
-:root{
+/* -----------------------------
+   Theme tokens
+   ----------------------------- */
+:root {
   --accent: #11d835;
   --accent-2: #7c4dff;
   --danger: #ff4d4f;
@@ -17,79 +17,47 @@
   --glass-light: rgba(255,255,255,0.92);
   --text-light: #e6eef8;
   --text-dark: #172022;
-  --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
 }
 
-/* ---- Resize handles (invisible by default, visible on hover) ---- */
-.resizeHandle {
-  position: absolute;
-  z-index: 120;
-  width: 14px;
-  height: 14px;
-  background: transparent;
-  border-radius: 3px;
-  pointer-events: auto;
-}
-
-/* corners */
-.resize-nw { top: 6px; left: 6px; cursor: nwse-resize; }
-.resize-ne { top: 6px; right: 6px; cursor: nesw-resize; }
-.resize-sw { bottom: 6px; left: 6px; cursor: nesw-resize; }
-.resize-se { bottom: 6px; right: 6px; cursor: nwse-resize; }
-
-/* edges */
-.resize-n { top: 4px; left: 50%; transform: translateX(-50%); width: 28px; height: 10px; cursor: ns-resize; }
-.resize-s { bottom: 4px; left: 50%; transform: translateX(-50%); width: 28px; height: 10px; cursor: ns-resize; }
-.resize-e { right: 4px; top: 50%; transform: translateY(-50%); width: 10px; height: 28px; cursor: ew-resize; }
-.resize-w { left: 4px; top: 50%; transform: translateY(-50%); width: 10px; height: 28px; cursor: ew-resize; }
-
-/* subtle grip for handles when hovered */
-.resizeHandle::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 3px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-  opacity: 0;
-  transition: opacity 140ms ease, transform 140ms ease;
-  transform: scale(0.9);
-}
-.resizeHandle:hover::after {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ---- Floating container ---- */
+/* -----------------------------
+   Floating container
+   ----------------------------- */
 .videoContainer {
   position: fixed;
   right: 20px;
-  bottom: 22px;
+  bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
   width: 320px;
   height: 210px;
 
-  /* allow native resize from bottom-right while not maximized */
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(12,16,20,0.85), rgba(6,10,14,0.9));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: var(--shadow-strong);
+  z-index: 2000;
+  font-family: var(--ui-font);
+
+  /* allow JS/native resize on desktop; disabled via media queries on mobile */
   resize: both;
-  overflow: auto;
+  overflow: hidden;
   min-width: 220px;
   min-height: 140px;
   max-width: 90vw;
   max-height: 85vh;
 
-  border-radius: var(--radius);
-  z-index: 2000;
-  background: linear-gradient(180deg, rgba(12,16,20,0.85), rgba(6,10,14,0.9));
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: var(--shadow-strong);
-  box-sizing: border-box;
-  transition: transform 220ms cubic-bezier(.2,.9,.2,1), width 260ms ease, height 260ms ease,
-              right 220ms ease, bottom 220ms ease, border-color 180ms ease, background 180ms ease;
-  font-family: var(--ui-font);
+  /* prevent browser gestures while interacting */
+  touch-action: none;
+  -ms-touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1),
+              width 260ms ease, height 260ms ease,
+              right 220ms ease, bottom 220ms ease;
 }
 
-/* Disable native resize while maximized (also applied via .maximized) */
+/* Maximized (centered, viewport-friendly) */
 .videoContainer.maximized {
   resize: none;
   width: 86vw;
@@ -102,7 +70,16 @@
   box-shadow: 0 30px 80px rgba(2,6,23,0.6);
 }
 
-/* subtle bottom-right decorative affordance */
+/* simple decorative accents (non-interactive) */
+.videoContainer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 48px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+  pointer-events: none;
+  z-index: 2;
+}
 .videoContainer::after {
   content: "";
   position: absolute;
@@ -110,77 +87,73 @@
   bottom: 8px;
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
   border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
   pointer-events: none;
   z-index: 70;
   box-shadow: 0 6px 18px rgba(2,6,23,0.4);
 }
 
-/* faint top bar behind handle */
-.videoContainer::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 48px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* ---- Drag handle ---- */
+/* -----------------------------
+   Drag handle (captures touch)
+   ----------------------------- */
 .drag-handle {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 42px;
-  cursor: move;
-  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  pointer-events: auto;
-}
+  z-index: 30;
 
-/* LIVE badge in handle */
+  cursor: grab;
+  pointer-events: auto;
+
+  /* ensure touch drags are captured (blocks scroll while dragging) */
+  touch-action: none;
+  -ms-touch-action: none;
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* tiny LIVE badge in the handle (non-interactive) */
 .drag-handle::after {
   content: "LIVE";
   font-size: 11px;
   font-weight: 700;
   color: var(--text-light);
-  opacity: 0.9;
-  margin-left: 8px;
   background: rgba(255,255,255,0.03);
   padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.02);
+  pointer-events: none;
   z-index: 40;
 }
 
-/* ---- top controls ---- */
+/* -----------------------------
+   Top controls & badges
+   ----------------------------- */
 .toggleButton {
   position: absolute;
   top: 8px;
   right: 10px;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.04);
-  color: var(--text-light);
   width: 34px;
   height: 34px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-light);
   z-index: 60;
-  transition: background 150ms ease, transform 120ms ease, color 120ms ease;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
 }
 .toggleButton:hover { transform: scale(1.06); background: rgba(255,255,255,0.04); }
 
-/* connection badge */
 .connectionStatus {
   position: absolute;
   left: 10px;
@@ -196,18 +169,21 @@
   font-weight:700;
   font-size:12px;
   border: 1px solid rgba(255,255,255,0.03);
+  pointer-events: none;
 }
 .statusIndicator {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #ff3b30;
   box-shadow: 0 2px 6px rgba(0,0,0,0.6);
 }
 .statusIndicator.connecting { background: #ffcc00; }
 .statusIndicator.connected { background: #34c759; }
+.statusIndicator { background: #ff3b30; } /* default */
 
-/* ---- video elements ---- */
+/* -----------------------------
+   Video elements
+   ----------------------------- */
 .remoteVideo {
   position: absolute;
   inset: 0;
@@ -238,7 +214,7 @@
   transition: transform 180ms ease, right 180ms ease, bottom 180ms ease, width 180ms ease;
 }
 
-/* local preview adjustments when maximized (works when .maximized present) */
+/* when main is maximized keep local preview smaller and offset */
 .videoContainer.maximized .localVideo {
   width: 22%;
   bottom: 22px;
@@ -247,7 +223,9 @@
   box-shadow: 0 18px 50px rgba(2,6,23,0.7);
 }
 
-/* ---- controls (bottom) ---- */
+/* -----------------------------
+   Controls (bottom center)
+   ----------------------------- */
 .controls {
   position: absolute;
   left: 50%;
@@ -258,14 +236,13 @@
   gap: 12px;
   align-items: center;
   padding: 8px 12px;
-  background: linear-gradient(180deg, rgba(10,12,14,0.6), rgba(3,5,7,0.55));
   border-radius: 999px;
+  background: linear-gradient(180deg, rgba(10,12,14,0.6), rgba(3,5,7,0.55));
   border: 1px solid rgba(255,255,255,0.04);
   box-shadow: var(--shadow-soft);
   pointer-events: auto;
 }
 
-/* control buttons */
 .controlButton {
   width: 44px;
   height: 44px;
@@ -282,7 +259,6 @@
 }
 .controlButton:hover { transform: scale(1.06); background: rgba(255,255,255,0.1); box-shadow: 0 6px 18px rgba(2,6,23,0.46); }
 
-/* danger / end call */
 .controlButton.danger {
   background: linear-gradient(180deg, rgba(255,80,85,0.95), rgba(255,60,60,0.95));
   color: white;
@@ -291,7 +267,7 @@
 }
 .controlButton.danger:hover { transform: scale(1.08); }
 
-/* start call CTA (center) */
+/* Start CTA (centered) */
 .startButton {
   position: absolute;
   left: 50%;
@@ -310,59 +286,44 @@
 }
 .startButton:hover { transform: translate(-50%, -50%) scale(1.03); box-shadow: 0 18px 44px rgba(32, 194, 56, 0.22); }
 
-/* responsive */
-@media (max-width: 900px) {
-  .videoContainer { right: 12px; bottom: 12px; width: 280px; height: 180px; }
-  .localVideo { width: 32%; min-width: 90px; max-width: 140px; right: 10px; bottom: 10px; }
-  .controls { bottom: 8px; padding: 6px 10px; gap: 8px; }
-  .toggleButton { top: 6px; right: 8px; width: 30px; height: 30px; }
-}
-
-/* LIGHT MODE OVERRIDES — applied when ancestor has .lightTheme */
-.lightTheme .videoContainer {
-  background: var(--glass-light);
-  border: 1px solid rgba(16,24,32,0.06);
-  box-shadow: 0 18px 40px rgba(11,15,22,0.06);
-}
-.lightTheme .videoContainer::before { background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,252,0.95)); }
-.lightTheme .drag-handle::after { color: var(--text-dark); background: rgba(16,24,32,0.03); border: 1px solid rgba(16,24,32,0.04); }
-.lightTheme .toggleButton { background: rgba(255,255,255,0.94); color: var(--text-dark); border: 1px solid rgba(16,24,32,0.06); }
-.lightTheme .connectionStatus { background: rgba(255,255,255,0.9); color: var(--text-dark); border: 1px solid rgba(16,24,32,0.06); }
-.lightTheme .remoteVideo { filter: none; background: #fff; }
-.lightTheme .localVideo { border: 1px solid rgba(16,24,32,0.06); box-shadow: 0 6px 18px rgba(11,15,22,0.06); }
-.lightTheme .controls { background: rgba(255,255,255,0.9); border: 1px solid rgba(16,24,32,0.06); }
-.lightTheme .controlButton { background: rgba(16,24,32,0.03); color: var(--text-dark); border:1px solid rgba(16,24,32,0.04); }
-.lightTheme .controlButton.danger { background: linear-gradient(180deg, rgba(255,77,77,1), rgba(235,65,65,1)); color: #fff; }
-.lightTheme .startButton { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 12px 28px rgba(37, 235, 103, 0.12); }
-
 /* focus outlines for a11y */
 .controlButton:focus, .toggleButton:focus, .startButton:focus {
   outline: 3px solid rgba(96, 250, 116, 0.12);
   outline-offset: 3px;
 }
 
-/* keep resize handles visually apparent when using keyboard focus on the container */
-.videoContainer:focus-within .resizeHandle::after { opacity: 1; transform: scale(1); }
+/* mark elements that should not trigger drag */
+.no-drag { user-select: none; pointer-events: auto; }
 
-/* small utility */
-.no-drag { user-select: none; }
-/* ---------- Mobile / small-screen improvements for VideoChat ---------- */
-
-/* Make floating video less intrusive on phones */
+/* -----------------------------
+   Responsive adjustments
+   ----------------------------- */
 @media (max-width: 900px) {
   .videoContainer {
-    width: 340px;
-    height: 200px;
     right: 12px;
-    bottom: 12px;
+    bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
+    width: 280px;
+    height: 180px;
+    z-index: 2005; /* ensure above mobile sheet */
   }
-
-  .localVideo { width: 30%; min-width: 100px; }
-  .controls { gap: 10px; padding: 6px 10px; bottom: 8px; }
+  .localVideo { width: 32%; min-width: 90px; max-width: 140px; right: 10px; bottom: 10px; }
+  .controls { bottom: 8px; padding: 6px 10px; gap: 8px; }
   .controlButton { width: 40px; height: 40px; font-size: 14px; }
 }
 
-/* On phones: stretch to nearly full width and reduce vertical footprint */
+/* small phones: anchored compact preview; disable native resize */
+@media (max-width: 700px) {
+  .videoContainer {
+    width: 160px;
+    height: 120px;
+    right: 12px;
+    bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
+    resize: none; /* prevent native resize on mobile browsers */
+  }
+  .drag-handle { cursor: default; }
+}
+
+/* very small phones — maximize clamps and preserves layout */
 @media (max-width: 480px) {
   .videoContainer {
     width: calc(100% - 24px);
@@ -370,48 +331,52 @@
     right: 12px;
     bottom: 12px;
     height: 220px;
-    border-radius: 10px;
     transform: none !important;
   }
-
-  .videoContainer.maximized { width: calc(100% - 20px); height: 60vh; left: 10px; transform: none; }
-
-  .remoteVideo { object-fit: cover; }
-  .localVideo {
-    width: 28%;
-    min-width: 90px;
-    right: 10px;
-    bottom: 10px;
+  .videoContainer.maximized {
+    width: calc(100% - 20px) !important;
+    height: 60vh !important;
+    left: 10px !important;
+    transform: none !important;
   }
-
   .drag-handle { height: 36px; }
   .toggleButton { width: 34px; height: 34px; top: 8px; right: 8px; }
-
+  .localVideo { width: 28%; min-width: 90px; right: 10px; bottom: 10px; }
   .controls { bottom: 8px; padding: 6px 8px; gap: 8px; }
-  .controlButton { width: 40px; height: 40px; }
   .startButton { padding: 10px 14px; border-radius: 22px; font-size: 14px; }
-
-  .connectionStatus { left: 8px; top: 8px; padding: 4px 8px; font-size: 12px; }
 }
 
-/* Ensure resize handles remain accessible when using keyboard or touch */
-
-
-/* ensure floating video sits above the mobile bottom sheet by using the CSS var */
-.videoContainer {
-  /* existing properties... keep them */
-  bottom: calc(var(--mobile-sheet-height, 0px) + 22px); /* adjust automatically when sheet active */
-  right: 20px;
-  z-index: 2000; /* above editor (editor has lower z-index) and above most content */
+/* -----------------------------
+   Light-mode overrides
+   ----------------------------- */
+.lightTheme .videoContainer {
+  background: var(--glass-light);
+  border: 1px solid rgba(16,24,32,0.06);
+  box-shadow: 0 18px 40px rgba(11,15,22,0.06);
 }
-
-/* fallback for desktop: if var not set it becomes 22px as before */
-@media (min-width: 901px) {
-  .videoContainer { bottom: 22px; right: 20px; }
+.lightTheme .drag-handle::after {
+  color: var(--text-dark);
+  background: rgba(16,24,32,0.03);
+  border: 1px solid rgba(16,24,32,0.04);
 }
-
-/* visual hint when draggable is disabled on small screens */
-@media (max-width: 700px) {
-  .videoContainer .drag-handle { cursor: default; }
+.lightTheme .toggleButton {
+  background: rgba(255,255,255,0.94);
+  color: var(--text-dark);
+  border: 1px solid rgba(16,24,32,0.06);
 }
+.lightTheme .connectionStatus {
+  background: rgba(255,255,255,0.9);
+  color: var(--text-dark);
+  border: 1px solid rgba(16,24,32,0.06);
+}
+.lightTheme .remoteVideo { filter: none; background: #fff; }
+.lightTheme .localVideo { border: 1px solid rgba(16,24,32,0.06); box-shadow: 0 6px 18px rgba(11,15,22,0.06); }
+.lightTheme .controls { background: rgba(255,255,255,0.9); border: 1px solid rgba(16,24,32,0.06); }
+.lightTheme .controlButton { background: rgba(16,24,32,0.03); color: var(--text-dark); border: 1px solid rgba(16,24,32,0.04); }
+.lightTheme .controlButton.danger { background: linear-gradient(180deg, rgba(255,77,77,1), rgba(235,65,65,1)); color: #fff; }
+.lightTheme .startButton { box-shadow: 0 12px 28px rgba(37, 235, 103, 0.12); }
 
+/* -----------------------------
+   Utilities
+   ----------------------------- */
+.hidden { display: none !important; }

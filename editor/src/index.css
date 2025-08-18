@@ -1,7 +1,11 @@
-/* index.css — add once */
+/* index.css — global site styles (drop in once) */
+
+/* ---------- Fonts ---------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600&display=swap');
 
-:root{
+/* ---------- Design tokens / variables ---------- */
+:root {
+  /* colors */
   --bg-dark: #0b1220;
   --panel: #0f1724;
   --muted: #9aa6b2;
@@ -9,39 +13,70 @@
   --accent-2: #3a7bd5;
   --glass: rgba(255,255,255,0.03);
   --glass-2: rgba(255,255,255,0.02);
+
+  /* spacing / geometry */
   --radius: 10px;
+
+  /* fonts */
   --mono: 'Fira Code', Consolas, monospace;
-}
+  --ui-font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 
-html,body,#root{
-  height:100%;
-  margin:0;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  background: var(--bg-dark);
-  color: #e6eef8;
-}
-
-/* when SideDrawer uses .mobileSheet we set a --mobile-sheet-height; default = 0 */
-:root {
+  /* mobile sheet integration (components may override this via JS) */
   --mobile-sheet-height: 0px;
 }
 
-/* when mobile sheet is active (JS can set this var) */
+/* When the SideDrawer (or other component) activates the mobile sheet,
+   add the class to <body> to expose the height globally:
+     document.body.classList.add('mobile-sheet-active')
+*/
 .mobile-sheet-active {
-  --mobile-sheet-height: 56vh; /* value should match SideDrawer .mobileSheet max-height */
+  --mobile-sheet-height: 56vh; /* should match SideDrawer .mobileSheet max-height */
 }
-/* Ensure the Select popup can't be hidden under the mobile sheet or video overlay.
-   Lightweight, minimal changes so desktop visuals aren't affected. */
+
+/* ---------- Global page rules ---------- */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--ui-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-dark);
+  color: #e6eef8;
+  box-sizing: border-box;
+}
+
+/* make box-sizing predictable */
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Utility: help keyboard focus visibility */
+:focus {
+  outline: 3px solid rgba(74,163,255,0.12);
+  outline-offset: 2px;
+}
+
+/* ---------- Scrollbars (subtle) ---------- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Language select popup safety ---------- */
+/* Ensure the AntD/rc-select dropdowns used inside the mobile sheet
+   sit above the sheet and floating video previews. */
 .codecrew-lang-dropdown {
   z-index: 3000 !important;        /* above mobileSheet (1700) and video (1900) */
   pointer-events: auto !important;
 }
 
-/* Only on small screens make the popup use white background and dark text for legibility */
+/* Desktop: leave visual defaults alone. */
+/* Mobile: force readable popup colors inside the sheet */
 @media (max-width: 900px) {
-  /* match AntD dropdown menu nodes without clobbering desktop */
+  /* rc-select / rc-virtual-list nodes that AntD uses in dropdowns */
   .codecrew-lang-dropdown .rc-select-dropdown,
   .codecrew-lang-dropdown .rc-virtual-list-holder-inner,
   .codecrew-lang-dropdown .rc-select-item-option {
@@ -50,10 +85,29 @@ html,body,#root{
     font-family: var(--mono) !important;
   }
 
-  /* make the visible selector inside the sheet look normal on mobile */
+  /* Make the visible selector inside the mobile sheet look natural */
   .mobileSheet .ant-select-selector,
   .languageSelect .ant-select-selector {
     background: #ffffff !important;
     color: #172022 !important;
   }
+
+  /* Improve touch hit targets */
+  .codecrew-lang-dropdown .rc-select-item-option {
+    padding: 12px 14px !important;
+    min-height: 44px;
+  }
 }
+
+/* ---------- Handy utilities ---------- */
+.hidden { display: none !important; }
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; /* keep it from expanding */
+}
+
+/* Keep mobile layout-aware components from being obscured by the sheet.
+   Example usage (JS): document.documentElement.style.setProperty('--mobile-sheet-height', '54vh'); */
