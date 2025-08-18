@@ -96,16 +96,22 @@ npm install
 npm start
 # default: http://localhost:3000
 ```
+---
+
 ### Backend (editor-backend)
 
 cd editor-backend
 npm install
 npm run dev
 
+---
+
 ### Frontend environment variables (optional)
 
+```bash
 REACT_APP_API_URL=http://localhost:8080
 REACT_APP_SIGNALING_WS=ws://localhost:8080/foo
+```
 
 
 
