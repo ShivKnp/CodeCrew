@@ -2,7 +2,7 @@
 
 A collaborative, real-time code-pairing platform with a Monaco-based editor, ShareDB-powered Operational Transformation (OT) synchronization, server-side code execution for selected languages, and an integrated draggable/resizable WebRTC video preview. Designed for pair programming, interviews, and teaching.
 
-**Live demo:** https://codepair.netlify.app/
+**Live demo:** code-crew-nu.vercel.app
 
 ---
 
