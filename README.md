@@ -1,42 +1,14 @@
-# Code Companion (Peer Share)
+# CodeCrew
 
 A collaborative, real-time code-pairing platform with a Monaco-based editor, ShareDB-powered Operational Transformation (OT) synchronization, server-side code execution for selected languages, and an integrated draggable/resizable WebRTC video preview. Designed for pair programming, interviews, and teaching.
 
-**Live demo:** https://codepair.netlify.app/  
-**Demo video:** _not available_
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Architecture & How It Works](#architecture--how-it-works)
-  - [Real-time editing (Operational Transformation)](#real-time-editing-operational-transformation)
-  - [Video calling (WebRTC)](#video-calling-webrtc)
-  - [Code execution (backend runner)](#code-execution-backend-runner)
-- [Supported Languages](#supported-languages)
-- [Getting Started (Local Development)](#getting-started-local-development)
-  - [Prerequisites](#prerequisites)
-  - [Frontend (editor)](#frontend-editor)
-  - [Backend](#backend)
-  - [Run both together](#run-both-together)
-- [Docker](#docker)
-- [Configuration / Environment Variables](#configuration--environment-variables)
-- [Security & Hardening Notes](#security--hardening-notes)
-- [Troubleshooting](#troubleshooting)
-- [Roadmap & TODO](#roadmap--todo)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Contact / Support](#contact--support)
+**Live demo:** https://codepair.netlify.app/
 
 ---
 
 ## Overview
 
-Code Companion (Peer Share) enables multiple users to edit code in the same Monaco editor instance in real time, see peer cursors and selections, run code against custom test input on the server, and communicate via a floating WebRTC video call. Sessions are private — only users with the session URL can join.
+CodeCrew enables multiple users to edit code in the same Monaco editor instance in real time, see peer cursors and selections, run code against custom test input on the server, and communicate via a floating WebRTC video call. Sessions are private — only users with the session URL can join.
 
 ---
 
@@ -129,7 +101,6 @@ npm start
 cd editor-backend
 npm install
 npm run dev
-# default: http://localhost:8080
 
 ### Frontend environment variables (optional)
 REACT_APP_API_URL=http://localhost:8080
