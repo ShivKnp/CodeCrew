@@ -42,25 +42,44 @@ const VideoChatComponent = ({ localStream, pinnedStream, pinnedPeer, handleVideo
         }
     }, [pinnedStream, isMaximized]);
 
+    // When our localStream becomes available, inform other clients of the initial mic/camera state
+    useEffect(() => {
+        if (localStream) {
+            const mic = localStream.getAudioTracks().some(t => t.enabled);
+            const camera = localStream.getVideoTracks().some(t => t.enabled);
+            window.dispatchEvent(new CustomEvent('local-media-update', { detail: { mic, camera } }));
+        }
+    }, [localStream]);
+
     const toggleMic = () => {
         if (localStream) {
-            localStream.getAudioTracks().forEach(track => track.enabled = !track.enabled);
-            setIsMicOn(prev => {
-                const next = !prev;
-                sessionStorage.setItem('codecrew-mic-on', String(next));
-                return next;
-            });
+            const next = !isMicOn;
+            localStream.getAudioTracks().forEach(track => track.enabled = next);
+            setIsMicOn(next);
+            sessionStorage.setItem('codecrew-mic-on', String(next));
+
+            // Notify VideoChat (or any listener) so it can relay this state to peers
+            try {
+                window.dispatchEvent(new CustomEvent('local-media-update', { detail: { mic: next, camera: isCameraOn } }));
+            } catch (err) {
+                // gracefully ignore in non-browser envs
+            }
         }
     };
 
     const toggleCamera = () => {
         if (localStream) {
-            localStream.getVideoTracks().forEach(track => track.enabled = !track.enabled);
-            setIsCameraOn(prev => {
-                const next = !prev;
-                sessionStorage.setItem('codecrew-camera-on', String(next));
-                return next;
-            });
+            const next = !isCameraOn;
+            localStream.getVideoTracks().forEach(track => track.enabled = next);
+            setIsCameraOn(next);
+            sessionStorage.setItem('codecrew-camera-on', String(next));
+
+            // Notify VideoChat (or any listener) so it can relay this state to peers
+            try {
+                window.dispatchEvent(new CustomEvent('local-media-update', { detail: { mic: isMicOn, camera: next } }));
+            } catch (err) {
+                // ignore in non-browser envs
+            }
         }
     };
 
@@ -143,13 +162,18 @@ const VideoChatComponent = ({ localStream, pinnedStream, pinnedPeer, handleVideo
                             <button className={styles.controlButton} onClick={toggleMic} aria-label="Toggle mic">
                                 {isMicOn ? <FaMicrophone size={16} /> : <FaMicrophoneSlash size={16} />}
                             </button>
-                            <button
-                                className={`${styles.controlButton} ${isScreenSharing ? styles.active : ''}`}
-                                onClick={handleToggleScreenShare}
-                                title="Share Screen"
-                            >
-                                <FaDesktop size={16} />
-                            </button>
+
+                            {/* HIDE SCREEN SHARE BUTTON ON MOBILE */}
+                            {!isMobile && (
+                                <button
+                                    className={`${styles.controlButton} ${isScreenSharing ? styles.active : ''}`}
+                                    onClick={handleToggleScreenShare}
+                                    title="Share Screen"
+                                >
+                                    <FaDesktop size={16} />
+                                </button>
+                            )}
+
                             <button className={`${styles.controlButton} ${styles.danger}`} onClick={handleVideoChat}><FaPhone size={16} /></button>
                         </div>
                     </div>

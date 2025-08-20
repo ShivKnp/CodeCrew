@@ -23,6 +23,10 @@ class VideoChat extends Component {
         this.handleCandidate = this.handleCandidate.bind(this);
         this.handleLeave = this.handleLeave.bind(this);
         this.addTrack = this.addTrack.bind(this);
+
+        // New bindings
+        this.handleLocalMediaUpdate = this.handleLocalMediaUpdate.bind(this);
+        this.sendMediaState = this.sendMediaState.bind(this);
     }
 
     componentDidMount() {
@@ -31,9 +35,12 @@ class VideoChat extends Component {
 
         const { roomId } = this.props;
 
-    // ✅ Use the roomId in the WebSocket URL
-    const videoSocket = new ReconnectingWebSocket(`${websocketURL}/foo/${roomId}`);
-    this.setState({ videoSocket });
+        // Use the roomId in the WebSocket URL
+        const videoSocket = new ReconnectingWebSocket(`${websocketURL}/foo/${roomId}`);
+        this.setState({ videoSocket });
+
+        // Listen for local UI toggles (UI should dispatch this event — see snippet below)
+        window.addEventListener('local-media-update', this.handleLocalMediaUpdate);
 
         videoSocket.addEventListener('open', () => {
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -44,8 +51,12 @@ class VideoChat extends Component {
                     if (this.props.onLocalStream) {
                         this.props.onLocalStream(stream);
                     }
+
                     // The server will assign an ID, so we send the join message here
                     videoSocket.send(JSON.stringify({ type: 'join', name: this.props.userName }));
+
+                    // Send initial media state to others (so drawer shows correct icons right away)
+                    this.sendMediaState(isMicInitiallyOn, isCameraInitiallyOn);
                 })
                 .catch(VideoHelper.handleLocalMediaStreamError);
         });
@@ -81,6 +92,10 @@ class VideoChat extends Component {
                 case 'leave':
                     this.handleLeave(from, context);
                     break;
+                case 'media-update':
+                    // New: update the peer metadata (mic/camera flags)
+                    this.handleIncomingMediaUpdate(from, data);
+                    break;
             }
         });
 
@@ -93,8 +108,31 @@ class VideoChat extends Component {
             this.state.localStream.getTracks().forEach(track => track.stop());
         }
         this.stopScreenShare(false);
-        this.state.peers.forEach(peer => peer.pc.close());
+        this.state.peers.forEach(peer => peer.pc && peer.pc.close());
         window.removeEventListener('toggleScreenShare', this.handleToggleScreenShare);
+        window.removeEventListener('local-media-update', this.handleLocalMediaUpdate);
+    }
+
+    // Called when UI toggles local mic/camera — UI should dispatch the custom event
+    handleLocalMediaUpdate(e) {
+        const { mic, camera } = e.detail || {};
+        // send over websocket so other clients can update UI
+        this.sendMediaState(mic, camera);
+    }
+
+    sendMediaState(mic, camera) {
+        const { videoSocket } = this.state;
+        if (!videoSocket || videoSocket.readyState !== WebSocket.OPEN) return;
+        videoSocket.send(JSON.stringify({ type: 'media-update', data: { mic: !!mic, camera: !!camera } }));
+    }
+
+    // When receiving media-update from other clients — update peers Map
+    handleIncomingMediaUpdate(fromUserId, data) {
+        const newPeers = new Map(this.state.peers);
+        const existing = newPeers.get(fromUserId) || { id: fromUserId, userName: 'Anonymous' };
+        const updated = { ...existing, micOn: data.mic, cameraOn: data.camera };
+        newPeers.set(fromUserId, updated);
+        this.updatePeers(newPeers);
     }
 
     handleToggleScreenShare = () => {
@@ -118,44 +156,42 @@ class VideoChat extends Component {
     }
 
     startScreenShare = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: "always" }, audio: false });
-    this.screenStream = stream;
+        try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: "always" }, audio: false });
+            this.screenStream = stream;
 
-    // avoid feedback loop on the sharing machine
-    document.body.classList.add('screen-sharing');
+            // avoid feedback loop on the sharing machine
+            document.body.classList.add('screen-sharing');
 
-    this.state.peers.forEach((peer, userId) => {
-      this.initiateScreenShareToPeer(userId, this.state.videoSocket);
-    });
+            this.state.peers.forEach((peer, userId) => {
+                this.initiateScreenShareToPeer(userId, this.state.videoSocket);
+            });
 
-    stream.getVideoTracks()[0].onended = () => {
-      this.stopScreenShare();
+            stream.getVideoTracks()[0].onended = () => {
+                this.stopScreenShare();
+            };
+            this.setState({ isScreenSharing: true });
+        } catch (err) {
+            console.error("Error starting screen share:", err);
+            this.setState({ isScreenSharing: false });
+        }
     };
-    this.setState({ isScreenSharing: true });
-  } catch (err) {
-    console.error("Error starting screen share:", err);
-    this.setState({ isScreenSharing: false });
-  }
-};
 
+    stopScreenShare = (notify = true) => {
+        if (this.screenStream) {
+            this.screenStream.getTracks().forEach(track => track.stop());
+            this.screenStream = null;
+        }
+        this.screenPcMap.forEach(pc => pc.close());
+        this.screenPcMap.clear();
 
-stopScreenShare = (notify = true) => {
-  if (this.screenStream) {
-    this.screenStream.getTracks().forEach(track => track.stop());
-    this.screenStream = null;
-  }
-  this.screenPcMap.forEach(pc => pc.close());
-  this.screenPcMap.clear();
+        if (notify && this.state.videoSocket) {
+            this.state.videoSocket.send(JSON.stringify({ type: 'leave', context: 'screen' }));
+        }
 
-  if (notify && this.state.videoSocket) {
-    this.state.videoSocket.send(JSON.stringify({ type: 'leave', context: 'screen' }));
-  }
-
-  this.setState({ isScreenSharing: false });
-  document.body.classList.remove('screen-sharing');
-};
-
+        this.setState({ isScreenSharing: false });
+        document.body.classList.remove('screen-sharing');
+    };
 
     updatePeers = (newPeers) => {
         this.setState({ peers: newPeers }, () => {
@@ -194,7 +230,7 @@ stopScreenShare = (notify = true) => {
 
     handleOffer(userId, userName, offer, videoSocket, context) {
         const pc = VideoHelper.peerConnectionInit(videoSocket, userId, this.addTrack, context);
-        
+
         if (context === 'screen') {
             this.screenPcMap.set(userId, pc);
         } else {
@@ -238,7 +274,7 @@ stopScreenShare = (notify = true) => {
         } else {
             const peer = this.state.peers.get(userId);
             if (peer && peer.pc) peer.pc.close();
-            
+
             const screenPc = this.screenPcMap.get(userId);
             if (screenPc) screenPc.close();
 
