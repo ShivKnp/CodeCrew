@@ -1,9 +1,7 @@
 import { notification } from 'antd'
+
 const helper = {
-    candidates: [],
-    pc: null,
-    videoSocket: null,
-    peerConnectionInit: (videoSocket) => {
+    peerConnectionInit: (videoSocket, userId, onTrack, context) => {
         let pc = new window.RTCPeerConnection({
             iceServers: [
                 {
@@ -16,48 +14,21 @@ const helper = {
                 },
             ]
         });
-        helper.videoSocket = videoSocket;
-        helper.pc = pc;
-        helper.pc.onicecandidate = helper.onIceCandidate;
-        helper.pc.oniceconnectionstatechange = helper.onIceConnectionStateChange;
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                videoSocket.send(JSON.stringify({ to: userId, type: 'candidate', data: event.candidate, context }));
+            }
+        };
+
+        pc.ontrack = (event) => {
+            onTrack(userId, event.streams[0], context);
+        };
+
         return pc;
     },
-    onIceCandidate: e => {
-        console.log('gathering state: ' + e.target.iceGatheringState);
-        if (e.candidate) {
-            helper.candidates.push(e.candidate);
-        }
-        else {
-            console.log(helper.candidates)
-            helper.videoSocket.send(JSON.stringify({ candidate: helper.candidates }));
-        }
-    },
-    addIceCandidate: candidate => {
-        helper.pc.addIceCandidate(new RTCIceCandidate(candidate));
-    },
-    onIceConnectionStateChange: e => {
-        console.log('connection state: ' + helper.pc.iceConnectionState);
-        if (helper.pc.iceConnectionState === 'disconnected') {
-            if (helper.pc.restartIce) {
-                console.log('restart')
-                helper.pc.restartIce();
-            }
-            else {
-                console.log('offer restart')
-                helper.createOffer();
-            }
-        }
-    },
-    createOffer: () => {
-        console.log('offer')
-        helper.pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true }).then(sdp => {
-            helper.pc.setLocalDescription(new RTCSessionDescription(sdp)).then(() => {
-                helper.videoSocket.send(JSON.stringify({ makeOffer: { offer: sdp } }));
-            }).catch(helper.error);
-        }).catch(helper.error);
-    },
     error: (err) => {
-        console.log('Error', err);
+        console.error('WebRTC Error', err);
     },
     handleLocalMediaStreamError: (error) => {
         console.log('navigator.getUserMedia error: ', error);

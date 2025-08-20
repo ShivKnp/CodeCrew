@@ -1,382 +1,305 @@
-/* VideoChat — cleaned & compact
-   Drop into VideoChat/main.module.css
-*/
-
-/* -----------------------------
-   Theme tokens
-   ----------------------------- */
 :root {
-  --accent: #11d835;
-  --accent-2: #7c4dff;
-  --danger: #ff4d4f;
-  --muted: #9aa6b2;
+  --vc-bg: #1f2937;
+  --vc-border: rgba(255,255,255,0.12);
+  --vc-shadow: 0 10px 25px rgba(0,0,0,0.45);
+  --vc-text: #ffffff;
+  --vc-controls-bg: rgba(18,22,28,0.72);
+  --vc-btn-bg: #4b5563;
+  --vc-btn-hover-bg: #6b7280;
+  --vc-danger: #e53e3e;
   --radius: 12px;
-  --shadow-strong: 0 18px 48px rgba(2,6,23,0.6);
-  --shadow-soft: 0 8px 20px rgba(2,6,23,0.35);
-  --glass-dark: rgba(6,10,15,0.56);
-  --glass-light: rgba(255,255,255,0.92);
-  --text-light: #e6eef8;
-  --text-dark: #172022;
-  --ui-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
 }
 
-/* -----------------------------
-   Floating container
-   ----------------------------- */
-.videoContainer {
-  position: fixed;
-  right: 20px;
-  bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
-  width: 320px;
-  height: 210px;
+.lightTheme {
+  --vc-bg: #ffffff;
+  --vc-border: #e5e7eb;
+  --vc-shadow: 0 10px 18px rgba(2,6,23,0.06);
+  --vc-text: #0b1220;
+  --vc-controls-bg: rgba(255,255,255,0.85);
+  --vc-btn-bg: #e6e9ee;
+  --vc-btn-hover-bg: #d1d5db;
+}
 
-  box-sizing: border-box;
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--vc-bg);
+  color: var(--vc-text);
+  border: 1px solid var(--vc-border);
+  box-shadow: var(--vc-shadow);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(12,16,20,0.85), rgba(6,10,14,0.9));
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: var(--shadow-strong);
-  z-index: 2000;
-  font-family: var(--ui-font);
-
-  /* allow JS/native resize on desktop; disabled via media queries on mobile */
-  resize: both;
   overflow: hidden;
-  min-width: 220px;
-  min-height: 140px;
-  max-width: 90vw;
-  max-height: 85vh;
-
-  /* prevent browser gestures while interacting */
-  touch-action: none;
-  -ms-touch-action: none;
-  -webkit-user-select: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   user-select: none;
-
-  transition: transform 220ms cubic-bezier(.2,.9,.2,1),
-              width 260ms ease, height 260ms ease,
-              right 220ms ease, bottom 220ms ease;
 }
 
-/* Maximized (centered, viewport-friendly) */
-.videoContainer.maximized {
-  resize: none;
-  width: 86vw;
-  height: 78vh;
-  left: 50%;
-  right: auto;
-  bottom: 10vh;
-  transform: translateX(-50%);
-  border-radius: 14px;
-  box-shadow: 0 30px 80px rgba(2,6,23,0.6);
+.resizableContainer {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
 }
 
-/* simple decorative accents (non-interactive) */
-.videoContainer::before {
-  content: "";
+.docked {
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 48px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
-  pointer-events: none;
-  z-index: 2;
-}
-.videoContainer::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  pointer-events: none;
-  z-index: 70;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.4);
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
 }
 
-/* -----------------------------
-   Drag handle (captures touch)
-   ----------------------------- */
-.drag-handle {
+.maximized {
+  position: fixed;
+  top: 5vh;
+  left: 5vw;
+  width: 90vw;
+  height: 90vh;
+  z-index: 2000;
+}
+
+.mobile {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2000;
+  border-radius: 16px;
+  transition: bottom 300ms ease-in-out;
+}
+
+.videoContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dragHandle {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 42px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  z-index: 30;
-
-  cursor: grab;
-  pointer-events: auto;
-
-  /* ensure touch drags are captured (blocks scroll while dragging) */
-  touch-action: none;
-  -ms-touch-action: none;
-}
-.drag-handle:active { cursor: grabbing; }
-
-/* tiny LIVE badge in the handle (non-interactive) */
-.drag-handle::after {
-  content: "LIVE";
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-light);
-  background: rgba(255,255,255,0.03);
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.02);
-  pointer-events: none;
-  z-index: 40;
+  padding: 0 12px;
+  z-index: 1005;
+  cursor: move;
+  color: var(--vc-text);
 }
 
-/* -----------------------------
-   Top controls & badges
-   ----------------------------- */
-.toggleButton {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  display: inline-flex;
+.pinnedName {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.windowActions {
+  display: flex;
+  gap: 6px;
   align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.04);
-  color: var(--text-light);
-  z-index: 60;
-  cursor: pointer;
-  transition: transform 150ms ease, background 150ms ease;
 }
-.toggleButton:hover { transform: scale(1.06); background: rgba(255,255,255,0.04); }
 
-.connectionStatus {
-  position: absolute;
-  left: 10px;
-  top: 8px;
-  z-index: 60;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  background: rgba(0,0,0,0.45);
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: var(--text-light);
-  font-weight:700;
-  font-size:12px;
-  border: 1px solid rgba(255,255,255,0.03);
-  pointer-events: none;
-}
-.statusIndicator {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-}
-.statusIndicator.connecting { background: #ffcc00; }
-.statusIndicator.connected { background: #34c759; }
-.statusIndicator { background: #ff3b30; } /* default */
-
-/* -----------------------------
-   Video elements
-   ----------------------------- */
-.remoteVideo {
-  position: absolute;
-  inset: 0;
+.mainVideo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #000;
-  z-index: 1;
-  transition: filter 200ms ease, transform 200ms ease;
-  filter: saturate(0.95) contrast(1.02);
+  background-color: #0f1113;
 }
 
-.localVideo {
+.maximized .mainVideo, .mainVideoContain {
+  object-fit: contain !important;
+  background-color: #000;
+}
+
+.localVideoPreview {
   position: absolute;
-  bottom: 14px;
-  right: 14px;
-  width: 28%;
+  width: 30%;
+  max-width: 220px;
   min-width: 110px;
-  max-width: 200px;
-  aspect-ratio: 16/9;
-  border-radius: 10px;
+  bottom: 15px;
+  right: 15px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
   border: 2px solid rgba(255,255,255,0.12);
-  box-shadow: 0 8px 28px rgba(2,6,23,0.6);
-  overflow: hidden;
-  object-fit: cover;
-  z-index: 30;
-  background: #000;
-  transition: transform 180ms ease, right 180ms ease, bottom 180ms ease, width 180ms ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  z-index: 1001;
 }
 
-/* when main is maximized keep local preview smaller and offset */
-.videoContainer.maximized .localVideo {
-  width: 22%;
-  bottom: 22px;
-  right: 28px;
-  border-radius: 12px;
-  box-shadow: 0 18px 50px rgba(2,6,23,0.7);
-}
-
-/* -----------------------------
-   Controls (bottom center)
-   ----------------------------- */
 .controls {
   position: absolute;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 12px;
-  z-index: 50;
   display: flex;
   gap: 12px;
-  align-items: center;
+  z-index: 1002;
+  background-color: var(--vc-controls-bg);
   padding: 8px 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(10,12,14,0.6), rgba(3,5,7,0.55));
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: var(--shadow-soft);
-  pointer-events: auto;
 }
 
 .controlButton {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: rgba(255,255,255,0.06);
-  color: var(--text-light);
-  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 50%;
+  background: var(--vc-btn-bg);
+  color: var(--vc-text);
   cursor: pointer;
-  transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
-  font-size: 16px;
+  transition: background-color 120ms ease;
 }
-.controlButton:hover { transform: scale(1.06); background: rgba(255,255,255,0.1); box-shadow: 0 6px 18px rgba(2,6,23,0.46); }
 
-.controlButton.danger {
-  background: linear-gradient(180deg, rgba(255,80,85,0.95), rgba(255,60,60,0.95));
-  color: white;
-  border: none;
-  box-shadow: 0 10px 28px rgba(255,64,64,0.18);
+.controlButton:hover {
+  background: var(--vc-btn-hover-bg);
 }
-.controlButton.danger:hover { transform: scale(1.08); }
 
-/* Start CTA (centered) */
-.startButton {
+.danger {
+  background: var(--vc-danger);
+  color: #fff;
+}
+
+.danger:hover {
+  background: #c53030;
+}
+
+.pipButton {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px;
+}
+
+.active {
+  background-color: #27ae60 !important;
+  color: white !important;
+}
+
+.no-drag {
+  user-select: none;
+  pointer-events: auto;
+}
+
+.resizeHandle {
   position: absolute;
-  left: 50%;
-  top: 52%;
-  transform: translate(-50%, -50%);
-  z-index: 60;
-  padding: 12px 18px;
-  border-radius: 28px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  color: white;
-  border: none;
-  font-weight: 800;
-  box-shadow: 0 12px 34px rgba(96,165,250,0.18);
-  cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-.startButton:hover { transform: translate(-50%, -50%) scale(1.03); box-shadow: 0 18px 44px rgba(32, 194, 56, 0.22); }
-
-/* focus outlines for a11y */
-.controlButton:focus, .toggleButton:focus, .startButton:focus {
-  outline: 3px solid rgba(96, 250, 116, 0.12);
-  outline-offset: 3px;
+  width: 20px;
+  height: 20px;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+  z-index: 1003;
 }
 
-/* mark elements that should not trigger drag */
-.no-drag { user-select: none; pointer-events: auto; }
+.resizeHandle::after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  border-right: 2px solid rgba(255,255,255,0.2);
+  border-bottom: 2px solid rgba(255,255,255,0.2);
+  transform: rotate(45deg);
+}
 
-/* -----------------------------
-   Responsive adjustments
-   ----------------------------- */
+.lightTheme .resizeHandle::after {
+  border-color: rgba(0,0,0,0.2);
+}
+
+.mobileControls {
+  gap: 6px !important;
+  padding: 6px 8px !important;
+  bottom: 8px !important;
+}
+
+.mobileControls .controlButton {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.mobileControls .controlButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mobile .resizeHandle {
+    width: 30px;
+    height: 30px;
+}
+
+.mobile .resizeHandle::after {
+    width: 12px;
+    height: 12px;
+    bottom: 4px;
+    right: 4px;
+    border-width: 3px;
+}
+
 @media (max-width: 900px) {
-  .videoContainer {
-    right: 12px;
-    bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
-    width: 280px;
-    height: 180px;
-    z-index: 2005; /* ensure above mobile sheet */
+  .localVideoPreview {
+    display: none;
   }
-  .localVideo { width: 32%; min-width: 90px; max-width: 140px; right: 10px; bottom: 10px; }
-  .controls { bottom: 8px; padding: 6px 10px; gap: 8px; }
-  .controlButton { width: 40px; height: 40px; font-size: 14px; }
 }
 
-/* small phones: anchored compact preview; disable native resize */
-@media (max-width: 700px) {
-  .videoContainer {
-    width: 160px;
-    height: 120px;
-    right: 12px;
-    bottom: calc(var(--mobile-sheet-height, 0px) + 12px);
-    resize: none; /* prevent native resize on mobile browsers */
-  }
-  .drag-handle { cursor: default; }
+:global(body.mobile-sheet-is-active) .container.mobile {
+  bottom: calc(var(--mobile-sheet-height, 40vh) + 20px); 
+}
+.participantGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 10px;
 }
 
-/* very small phones — maximize clamps and preserves layout */
-@media (max-width: 480px) {
-  .videoContainer {
-    width: calc(100% - 24px);
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    height: 220px;
-    transform: none !important;
-  }
-  .videoContainer.maximized {
-    width: calc(100% - 20px) !important;
-    height: 60vh !important;
-    left: 10px !important;
-    transform: none !important;
-  }
-  .drag-handle { height: 36px; }
-  .toggleButton { width: 34px; height: 34px; top: 8px; right: 8px; }
-  .localVideo { width: 28%; min-width: 90px; right: 10px; bottom: 10px; }
-  .controls { bottom: 8px; padding: 6px 8px; gap: 8px; }
-  .startButton { padding: 10px 14px; border-radius: 22px; font-size: 14px; }
+.participantCard {
+  position: relative;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
-/* -----------------------------
-   Light-mode overrides
-   ----------------------------- */
-.lightTheme .videoContainer {
-  background: var(--glass-light);
-  border: 1px solid rgba(16,24,32,0.06);
-  box-shadow: 0 18px 40px rgba(11,15,22,0.06);
+.participantVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.lightTheme .drag-handle::after {
-  color: var(--text-dark);
-  background: rgba(16,24,32,0.03);
-  border: 1px solid rgba(16,24,32,0.04);
-}
-.lightTheme .toggleButton {
-  background: rgba(255,255,255,0.94);
-  color: var(--text-dark);
-  border: 1px solid rgba(16,24,32,0.06);
-}
-.lightTheme .connectionStatus {
-  background: rgba(255,255,255,0.9);
-  color: var(--text-dark);
-  border: 1px solid rgba(16,24,32,0.06);
-}
-.lightTheme .remoteVideo { filter: none; background: #fff; }
-.lightTheme .localVideo { border: 1px solid rgba(16,24,32,0.06); box-shadow: 0 6px 18px rgba(11,15,22,0.06); }
-.lightTheme .controls { background: rgba(255,255,255,0.9); border: 1px solid rgba(16,24,32,0.06); }
-.lightTheme .controlButton { background: rgba(16,24,32,0.03); color: var(--text-dark); border: 1px solid rgba(16,24,32,0.04); }
-.lightTheme .controlButton.danger { background: linear-gradient(180deg, rgba(255,77,77,1), rgba(235,65,65,1)); color: #fff; }
-.lightTheme .startButton { box-shadow: 0 12px 28px rgba(37, 235, 103, 0.12); }
 
-/* -----------------------------
-   Utilities
-   ----------------------------- */
-.hidden { display: none !important; }
+.participantStatusIcons {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.participantOverlay {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+}
+
+.pinButton {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+}

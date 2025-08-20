@@ -1,212 +1,168 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import styles from './main.module.css';
-import { 
-  FaVideo, 
-  FaVideoSlash, 
-  FaMicrophone, 
-  FaMicrophoneSlash,
-  FaPhone,
-  FaExpand,
-  FaCompress
+import {
+    FaVideo, FaVideoSlash, FaMicrophone, FaMicrophoneSlash, FaPhone,
+    FaExpand, FaCompress, FaRegWindowRestore, FaDesktop, FaEye, FaEyeSlash
 } from 'react-icons/fa';
 
-const VideoChatComponent = props => {
-  const { 
-    draggableRef,
-    remoteRef,
-    localRef,
-    peerConnected,
-    controls,
-    gotMediaDevice,
-    toggleVideo,
-    toggleAudio,
-    createOffer,
-    connecting,
-    handleVideoChat,
-    isMobile
-  } = props;
+const VideoChatComponent = ({ localStream, pinnedStream, pinnedPeer, handleVideoChat, theme, pinnedStreamType }) => {
+    const localVideoRef = useRef();
+    const pinnedVideoRef = useRef();
+    const [isMaximized, setIsMaximized] = useState(false);
+    const nodeRef = useRef(null);
 
-  const [maximized, setMaximized] = React.useState(false);
+    const [isMicOn, setIsMicOn] = useState(() => sessionStorage.getItem('codecrew-mic-on') === 'true');
+    const [isCameraOn, setIsCameraOn] = useState(() => sessionStorage.getItem('codecrew-camera-on') === 'true');
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isScreenSharing, setIsScreenSharing] = useState(false);
+    const [showLocalPreview, setShowLocalPreview] = useState(true);
 
-  // Responsive sizing logic (keeps small preview on mobile bottom-right)
-  React.useEffect(() => {
-    const node = draggableRef && draggableRef.current ? draggableRef.current : null;
-    if (!node) return;
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-    if (maximized) {
-      node.style.position = 'fixed';
-      node.style.left = '50%';
-      node.style.top = isMobile ? '6vh' : '50%';
-      node.style.transform = isMobile ? 'translateX(-50%)' : 'translate(-50%, -50%)';
-      node.style.width = isMobile ? 'calc(100% - 20px)' : '86vw';
-      node.style.height = isMobile ? '60vh' : '78vh';
-      node.style.right = 'auto';
-      node.style.bottom = 'auto';
-      node.classList.add(styles.maximized);
-    } else {
-      node.style.position = 'fixed';
-      node.style.transform = '';
-      if (isMobile) {
-        node.style.width = '160px';
-        node.style.height = '120px';
-        node.style.right = '12px';
-        node.style.bottom = `calc(var(--mobile-sheet-height, 0px) + 12px)`;
-        node.style.left = 'auto';
-        node.style.top = 'auto';
-      } else {
-        node.style.left = '';
-        node.style.top = '';
-        node.style.width = '';
-        node.style.height = '';
-        node.style.right = '20px';
-        node.style.bottom = '22px';
-      }
-      node.classList.remove(styles.maximized);
+    const lightThemes = ['vs', 'light', 'github', 'solarized-light'];
+    const isLight = lightThemes.includes(theme);
+
+    useEffect(() => {
+        if (localVideoRef.current && localStream) {
+            localVideoRef.current.srcObject = localStream;
+        }
+    }, [localStream, isMaximized]);
+
+    // FIX IS HERE: Added isMaximized to the dependency array
+    useEffect(() => {
+        if (pinnedVideoRef.current) {
+            pinnedVideoRef.current.srcObject = pinnedStream || null;
+        }
+    }, [pinnedStream, isMaximized]);
+
+    const toggleMic = () => {
+        if (localStream) {
+            localStream.getAudioTracks().forEach(track => track.enabled = !track.enabled);
+            setIsMicOn(prev => {
+                const next = !prev;
+                sessionStorage.setItem('codecrew-mic-on', String(next));
+                return next;
+            });
+        }
+    };
+
+    const toggleCamera = () => {
+        if (localStream) {
+            localStream.getVideoTracks().forEach(track => track.enabled = !track.enabled);
+            setIsCameraOn(prev => {
+                const next = !prev;
+                sessionStorage.setItem('codecrew-camera-on', String(next));
+                return next;
+            });
+        }
+    };
+
+    const handleToggleScreenShare = () => {
+        window.dispatchEvent(new CustomEvent('toggleScreenShare'));
+        setIsScreenSharing(prev => !prev);
+    };
+
+    const handlePictureInPicture = () => {
+        if (document.pictureInPictureEnabled && pinnedVideoRef.current) {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture();
+            } else {
+                pinnedVideoRef.current.requestPictureInPicture();
+            }
+        } else {
+            alert('Your browser does not support Picture-in-Picture mode.');
+        }
+    };
+
+    const containerClasses = [
+        styles.container,
+        isLight ? styles.lightTheme : styles.darkTheme,
+        isMobile ? styles.mobile : '',
+        isMaximized ? styles.maximized : styles.docked,
+    ].join(' ');
+
+    const initialSize = isMobile ? { width: 140, height: 180 } : { width: 340, height: 255 };
+
+    const VideoWindow = (
+        <Draggable nodeRef={nodeRef} handle={`.${styles.dragHandle}`} cancel=".no-drag" disabled={isMaximized}>
+            <div ref={nodeRef} className={containerClasses}>
+                <Resizable
+                    className={styles.resizableContainer}
+                    defaultSize={isMaximized ? { width: '100%', height: '100%' } : initialSize}
+                    minWidth={120}
+                    minHeight={160}
+                    enable={{ bottomRight: !isMaximized }}
+                    handleClasses={isMaximized ? {} : { bottomRight: styles.resizeHandle }}
+                >
+                    <div className={styles.videoContent}>
+                        <div className={styles.dragHandle}>
+                            <span className={styles.pinnedName}>{pinnedPeer ? pinnedPeer.userName : 'Pinned'}</span>
+                            <div className={styles.windowActions}>
+                                <button className={`${styles.controlButton} ${styles.pipButton} no-drag`} onClick={handlePictureInPicture} title="Picture-in-Picture">
+                                    <FaRegWindowRestore size={12} />
+                                </button>
+                                {isMaximized && (
+                                    <button
+                                        className={`${styles.controlButton} ${styles.pipButton} no-drag`}
+                                        onClick={() => setShowLocalPreview(prev => !prev)}
+                                        title={showLocalPreview ? "Hide preview" : "Show preview"}
+                                    >
+                                        {showLocalPreview ? <FaEyeSlash size={12} /> : <FaEye size={12} />}
+                                    </button>
+                                )}
+                                {!isMobile && (
+                                    <button className={`${styles.controlButton} ${styles.pipButton} no-drag`} onClick={() => setIsMaximized(!isMaximized)} title={isMaximized ? "Restore" : "Maximize"}>
+                                        {isMaximized ? <FaCompress size={12} /> : <FaExpand size={12} />}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        <video
+                            ref={pinnedVideoRef}
+                            className={`${styles.mainVideo} ${isMaximized ? styles.mainVideoContain : ''}`}
+                            autoPlay
+                            playsInline
+                        />
+
+                        {pinnedStreamType !== 'screen' && showLocalPreview && (
+                            <video ref={localVideoRef} className={styles.localVideoPreview} autoPlay playsInline muted />
+                        )}
+                        
+                        <div className={`${styles.controls} ${isMobile ? styles.mobileControls : ''} no-drag`}>
+                            <button className={styles.controlButton} onClick={toggleCamera} aria-label="Toggle camera">
+                                {isCameraOn ? <FaVideo size={16} /> : <FaVideoSlash size={16} />}
+                            </button>
+                            <button className={styles.controlButton} onClick={toggleMic} aria-label="Toggle mic">
+                                {isMicOn ? <FaMicrophone size={16} /> : <FaMicrophoneSlash size={16} />}
+                            </button>
+                            <button
+                                className={`${styles.controlButton} ${isScreenSharing ? styles.active : ''}`}
+                                onClick={handleToggleScreenShare}
+                                title="Share Screen"
+                            >
+                                <FaDesktop size={16} />
+                            </button>
+                            <button className={`${styles.controlButton} ${styles.danger}`} onClick={handleVideoChat}><FaPhone size={16} /></button>
+                        </div>
+                    </div>
+                </Resizable>
+            </div>
+        </Draggable>
+    );
+
+    if (isMaximized || isMobile) {
+        return createPortal(VideoWindow, document.body);
     }
-  }, [maximized, isMobile, draggableRef]);
 
-  /* ===== Add one safe non-passive touchstart listener =====
-     Purpose:
-     - We attach a native listener with { passive: false } so preventDefault() will actually be effective
-       where needed (on touches that start on non-interactive areas).
-     - If the touch started on an interactive element (button/a/input/textarea/select or element with .no-drag),
-       we DO NOT call preventDefault(), so the element still receives normal tap/click behavior.
-  */
-  React.useEffect(() => {
-    const node = draggableRef && draggableRef.current ? draggableRef.current : null;
-    if (!node) return;
-
-    const onTouchStart = (e) => {
-      // Only apply for mobile and when not maximized (we want dragging on small preview)
-      if (!isMobile || maximized) return;
-
-      // If the touch target is inside an interactive control, do not preventDefault
-      // This keeps buttons/toggles clickable.
-      const interactiveSelector = 'button, a, input, textarea, select, [role="button"], .no-drag, .controlButton, .toggleButton, .startButton';
-      const targetIsInteractive = e.target && e.target.closest && e.target.closest(interactiveSelector);
-
-      if (!targetIsInteractive) {
-        // preventDefault so the browser doesn't treat this as a scroll/gesture.
-        if (e.cancelable) e.preventDefault();
-      }
-      // else: allow default so taps on controls generate click events
-    };
-
-    node.addEventListener('touchstart', onTouchStart, { passive: false });
-
-    return () => {
-      node.removeEventListener('touchstart', onTouchStart, { passive: false });
-    };
-  }, [draggableRef, isMobile, maximized]);
-
-  // Only disable dragging when maximized; allow dragging on mobile small preview
-  const draggableDisabled = maximized;
-
-  return (
-    <Draggable
-      nodeRef={draggableRef}
-      // On mobile allow dragging from entire container so user can touch anywhere on preview.
-      // On desktop keep the drag handle experience (less accidental drags).
-      handle={isMobile ? undefined : '.drag-handle'}
-      cancel=".no-drag, button, .controlButton, .startButton, .toggleButton"
-      disabled={draggableDisabled}
-      enableUserSelectHack={true}
-      axis="both"
-      allowAnyClick={true}
-    >
-      <div 
-        ref={draggableRef} 
-        className={`${styles.videoContainer} ${maximized ? styles.maximized : ''}`}
-        style={{ touchAction: 'none', WebkitUserSelect: 'none' }} // helpful fallback
-      >
-        <div 
-          className="drag-handle" 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '30px',
-            cursor: 'move',
-            zIndex: 50,
-            touchAction: 'none'
-          }}
-        />
-
-        <button 
-          className={`${styles.toggleButton} no-drag`}
-          onClick={() => setMaximized(!maximized)}
-          aria-label={maximized ? "Restore video" : "Maximize video"}
-        >
-          {maximized ? <FaCompress size={14} /> : <FaExpand size={14} />}
-        </button>
-        
-        {connecting && (
-          <div className={styles.connectionStatus}>
-            <div className={`${styles.statusIndicator} ${styles.connecting}`} />
-            <span>Connecting...</span>
-          </div>
-        )}
-        
-        {peerConnected && (
-          <div className={styles.connectionStatus}>
-            <div className={`${styles.statusIndicator} ${styles.connected}`} />
-            <span>Connected</span>
-          </div>
-        )}
-        
-        <video
-          className={styles.remoteVideo}
-          ref={remoteRef}
-          autoPlay={true}
-          muted={!peerConnected}
-        />
-        
-        <video
-          className={styles.localVideo}
-          ref={localRef}
-          autoPlay={true}
-          muted={true}
-        />
-        
-        {peerConnected && (
-          <div className={`${styles.controls} no-drag`}>
-            <button 
-              className={styles.controlButton}
-              onClick={toggleVideo}
-              title={controls.video ? "Turn off video" : "Turn on video"}
-            >
-              {controls.video ? <FaVideo size={16} /> : <FaVideoSlash size={16} />}
-            </button>
-            <button 
-              className={styles.controlButton}
-              onClick={toggleAudio}
-              title={controls.audio ? "Mute microphone" : "Unmute microphone"}
-            >
-              {controls.audio ? <FaMicrophone size={16} /> : <FaMicrophoneSlash size={16} />}
-            </button>
-            <button 
-              className={`${styles.controlButton} ${styles.danger}`}
-              onClick={handleVideoChat}
-              title="End call"
-            >
-              <FaPhone size={16} />
-            </button>
-          </div>
-        )}
-        
-        {gotMediaDevice && !peerConnected && (
-          <button 
-            className={styles.startButton}
-            onClick={createOffer}
-          >
-            Start Call
-          </button>
-        )}
-      </div>
-    </Draggable>
-  );
+    return VideoWindow;
 };
 
 export default VideoChatComponent;

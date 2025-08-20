@@ -1,0 +1,131 @@
+/*
+ * Modern & Cohesive Stylesheet for CodeCrew Home & Join Modal
+ * ----------------------------------------------------
+ * Theme: Matches the dark, professional aesthetic of the main app.
+ * Features: Overrides for Ant Design's Modal to ensure a seamless dark theme.
+ */
+
+/* --- Main Home Page Container --- */
+/* This is a placeholder for your HomeComponent's root div. 
+   Your existing HomeComponent already has its own beautiful styles. 
+   This file primarily focuses on styling the Modal to match. */
+.homeContainer {
+    /* Assuming your HomeComponent handles its own layout and background */
+    min-height: 100vh;
+}
+
+
+/*
+ * =========================================
+ * GLOBAL STYLES FOR ANT DESIGN MODAL
+ * =========================================
+ * These rules use :global() to override AntD's default styles
+ * and make the modal match your app's dark theme.
+ */
+
+/* --- Modal Overlay --- */
+:global(.ant-modal-mask) {
+    backdrop-filter: blur(8px);
+    background-color: rgba(10, 16, 30, 0.6) !important;
+}
+
+/* --- Modal Content Wrapper --- */
+:global(.ant-modal-content) {
+    background: linear-gradient(135deg, #0f172a, #0c1222) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+    color: #e5e7eb !important;
+}
+
+/* --- Modal Header --- */
+:global(.ant-modal-header) {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 20px 24px !important;
+}
+
+:global(.ant-modal-title) {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+}
+
+/* --- Modal Close Button --- */
+:global(.ant-modal-close) {
+    color: rgba(255, 255, 255, 0.6) !important;
+    transition: color 0.2s ease;
+}
+:global(.ant-modal-close:hover) {
+    color: #ffffff !important;
+}
+
+/* --- Modal Body --- */
+:global(.ant-modal-body) {
+    padding: 24px !important;
+    font-size: 16px;
+}
+:global(.ant-modal-body p) {
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+/* --- Custom Input Field --- */
+:global(.ant-modal-body .ant-input) {
+    height: 48px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+:global(.ant-modal-body .ant-input::placeholder) {
+    color: rgba(255, 255, 255, 0.4);
+}
+:global(.ant-modal-body .ant-input:focus),
+:global(.ant-modal-body .ant-input:hover) {
+    border-color: #3a7bd5 !important;
+    box-shadow: 0 0 10px rgba(58, 123, 213, 0.3) !important;
+}
+
+/* --- Modal Footer & Buttons --- */
+:global(.ant-modal-footer) {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 16px 24px !important;
+    background: transparent !important;
+    border-radius: 0 0 16px 16px !important;
+}
+
+:global(.ant-modal-footer .ant-btn) {
+    height: 44px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    padding: 0 24px !important;
+    transition: all 0.2s ease;
+}
+
+/* Cancel Button */
+:global(.ant-modal-footer .ant-btn-default) {
+    color: #e5e7eb !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+:global(.ant-modal-footer .ant-btn-default:hover) {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Primary "Join" Button */
+:global(.ant-modal-footer .ant-btn-primary) {
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 8px 24px rgba(58, 123, 213, 0.15) !important;
+}
+:global(.ant-modal-footer .ant-btn-primary:hover) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(58, 123, 213, 0.25) !important;
+    filter: brightness(1.1);
+}

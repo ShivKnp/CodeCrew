@@ -1,0 +1,88 @@
+/* editor/src/Components/ParticipantsDrawer/main.module.css */
+
+/* --- Theme Variables --- */
+.drawer {
+  --drawer-bg: #1a1d23;
+  --drawer-header-border: rgba(255, 255, 255, 0.1);
+  --drawer-text: #e6eef8;
+  --card-bg: #000;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --pin-btn-bg: rgba(255, 255, 255, 0.2);
+  --pin-btn-text: #fff;
+}
+
+.lightTheme {
+  --drawer-bg: #ffffff;
+  --drawer-header-border: #e5e7eb;
+  --drawer-text: #1f2937;
+  --card-bg: #f9fafb;
+  --card-border: #e5e7eb;
+  --pin-btn-bg: #e5e7eb;
+  --pin-btn-text: #374151;
+}
+/* -------------------- */
+
+/* FIX FOR #4: Use :global selectors scoped within theme classes */
+.drawer :global(.ant-drawer-content) {
+    background-color: var(--drawer-bg) !important;
+}
+.drawer :global(.ant-drawer-header) {
+  background-color: var(--drawer-bg) !important;
+  border-bottom: 1px solid var(--drawer-header-border) !important;
+}
+.drawer :global(.ant-drawer-body) {
+  padding: 16px;
+  background-color: var(--drawer-bg);
+}
+.drawer :global(.ant-drawer-title),
+.drawer :global(.ant-drawer-close) {
+  color: var(--drawer-text) !important;
+}
+
+.participantList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.participantCard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+.participantVideo { width: 100%; height: 100%; object-fit: cover; }
+.participantOverlay {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.participantName { color: #fff; font-weight: 600; font-size: 13px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+.pinButton { background-color: var(--pin-btn-bg); border: none; color: var(--pin-btn-text); }
+.participantIcons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-left: 8px;
+  color: #fff;
+}
+.participantStatusIcons {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+.participantCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+

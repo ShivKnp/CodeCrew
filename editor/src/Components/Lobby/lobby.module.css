@@ -1,0 +1,180 @@
+/*
+ * Modern & Cohesive Stylesheet for CodeCrew Lobby
+ * ----------------------------------------------------
+ * Theme: Matches the dark, professional aesthetic of the home page.
+ * Features: Gradient buttons, glassmorphism controls, and custom form styling.
+ */
+
+/* --- Root Container --- */
+.lobbyContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #071129 0%, #071b2b 100%);
+    color: #e6eef8;
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Main Content Card --- */
+.mainContent {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    width: 100%;
+    max-width: 1000px;
+    background: rgba(12, 23, 44, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+/* --- Video & Media --- */
+.videoPreview {
+    flex: 1;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background-color: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.videoElement {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror effect */
+}
+
+.mediaControls {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 8px;
+    backdrop-filter: blur(8px);
+}
+
+/* Style for individual media buttons (mic, camera) */
+.mediaControls > :global(.ant-btn) {
+    width: 44px !important;
+    height: 44px !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 18px !important;
+    transition: all 0.2s ease;
+}
+
+.mediaControls > :global(.ant-btn):hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Style for "off" state (mic muted, camera off) */
+.mediaControls > :global(.ant-btn).off {
+    background-color: #ff4d6d !important;
+    color: #fff !important;
+    box-shadow: 0 0 12px rgba(255, 77, 109, 0.5);
+}
+
+/* --- Join Form & Controls --- */
+.joinControls {
+    flex: 0 0 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    color: #fff;
+}
+
+/* Custom styled Ant Design Input */
+.nameInput,
+:global(.ant-input-affix-wrapper) {
+    height: 48px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    transition: all 0.2s ease;
+}
+.nameInput::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+.nameInput:focus,
+.nameInput:hover,
+:global(.ant-input-affix-wrapper-focused) {
+    border-color: #3a7bd5 !important;
+    box-shadow: 0 0 10px rgba(58, 123, 213, 0.3) !important;
+}
+
+/* --- Buttons --- */
+.joinButton,
+.copyButton {
+    height: 48px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease;
+    border: none !important;
+}
+
+/* Primary "Join" button with gradient */
+.joinButton {
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 24px rgba(58, 123, 213, 0.15) !important;
+}
+.joinButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(58, 123, 213, 0.25) !important;
+    filter: brightness(1.1);
+}
+
+/* Secondary "Copy Link" button */
+.copyButton {
+    color: #e5e7eb !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.copyButton:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* --- Responsive Styles --- */
+@media (max-width: 900px) {
+    .mainContent {
+        flex-direction: column;
+        padding: 32px;
+        gap: 32px;
+    }
+    .videoPreview {
+        width: 100%;
+        max-width: 500px;
+    }
+    .joinControls {
+        flex: 1;
+        width: 100%;
+        max-width: 400px;
+        align-items: stretch; /* Make buttons full width */
+        text-align: center;
+    }
+    .title {
+        font-size: 28px;
+    }
+}

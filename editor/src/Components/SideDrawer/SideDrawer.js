@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input, Button, Select, Divider, Popover } from 'antd';
-import { 
-  PlayCircleOutlined,
-  VideoCameraOutlined,
-  ShareAltOutlined,
-  ConsoleSqlOutlined,
-  FileTextOutlined,
-  CodeOutlined
+import {
+    PlayCircleOutlined,
+    ShareAltOutlined,
+    ConsoleSqlOutlined,
+    FileTextOutlined,
+    CodeOutlined
 } from '@ant-design/icons';
 import styles from './main.module.css';
-
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -18,57 +16,44 @@ const SideDrawer = (props) => {
     const {
         input,
         output,
-        videoChat,
         lang,
         handleLang,
         handleRun,
         handleInput,
-        handleVideoChat,
         runCodeDisabled,
-        theme
+        theme,
+        participantsDrawerVisible
     } = props;
 
-    // Treat <=420px as "small phone / mobile" (iPhone SE and similar)
-    const MOBILE_BREAKPOINT = 420;
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
     useEffect(() => {
-      const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
-      window.addEventListener('resize', onResize);
-      return () => window.removeEventListener('resize', onResize);
+        const onResize = () => setIsMobile(window.innerWidth <= 900);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
     }, []);
 
-    // If you want JS to expose sheet height (used by video positioning), you may set the CSS var here.
-    useEffect(() => {
-      if (isMobile) {
-        // Keep consistent with CSS .mobileSheet max-height (54vh). Provide var so other components can use it.
-        document.documentElement.style.setProperty('--mobile-sheet-height', '54vh');
-        document.body.classList.add('mobile-sheet-active');
-      } else {
-        document.documentElement.style.removeProperty('--mobile-sheet-height');
-        document.body.classList.remove('mobile-sheet-active');
-      }
-      return () => {
-        document.documentElement.style.removeProperty('--mobile-sheet-height');
-        document.body.classList.remove('mobile-sheet-active');
-      };
-    }, [isMobile]);
-
-    // light-theme check (same as your editor)
     const lightThemes = ['vs', 'light', 'github', 'solarized-light'];
     const isLight = lightThemes.includes(theme);
+
+    const drawerClasses = [
+        styles.sideDrawer,
+        isLight ? styles.lightTheme : '',
+        isMobile ? styles.mobileSheet : '',
+        (isMobile && participantsDrawerVisible) ? styles.hidden : ''
+    ].join(' ');
 
     const inviteContent = (
         <div className={styles.invitePopoverContent}>
             <h4>Invite Collaborator</h4>
             <p className={styles.inviteHint}>Share this link to start pair programming</p>
             <div className={styles.inviteInputGroup}>
-                <Input 
-                    value={window.location.href} 
-                    readOnly 
+                <Input
+                    value={window.location.href}
+                    readOnly
                     className={styles.inviteInput}
                 />
-                <Button 
-                    type="primary" 
+                <Button
+                    type="primary"
                     onClick={() => navigator.clipboard.writeText(window.location.href)}
                     className={styles.copyButton}
                 >
@@ -85,8 +70,7 @@ const SideDrawer = (props) => {
     ];
 
     return (
-        <div className={`${styles.sideDrawer} ${isLight ? styles.lightTheme : styles.darkTheme} ${isMobile ? styles.mobileSheet : ''}`}>
-            {/* Header */}
+        <div className={drawerClasses}>
             <div className={styles.header}>
                 <h3 className={styles.title}>
                     <ConsoleSqlOutlined className={styles.titleIcon} />
@@ -94,38 +78,25 @@ const SideDrawer = (props) => {
                 </h3>
                 <div className={styles.actions}>
                     <Popover
-  content={inviteContent}
-  trigger="click"
-  placement="bottomRight"
-  /* Ensure the popover renders inside the mobile sheet on small screens,
-     and otherwise attach to body. This prevents it being placed under the sheet. */
-  getPopupContainer={(triggerNode) => {
-    try {
-      // prefer placing the popup inside mobileContent when available (keeps it above)
-      return triggerNode?.closest(`.${styles.mobileContent}`) || document.body;
-    } catch (e) {
-      return document.body;
-    }
-  }}
-  /* Force a higher z-index so it sits above .mobileSheet (1700) */
-  overlayStyle={{ zIndex: 1900 }}
-  /* CSS module class applied to the popover wrapper (AntD prop name is overlayClassName for v4) */
-  overlayClassName={styles.inviteOverlay}
->
-  <Button type="text" icon={<ShareAltOutlined />} className={styles.actionButton} />
-</Popover>
-                    <Button 
-                        type={videoChat ? "default" : "text"} 
-                        icon={<VideoCameraOutlined />} 
-                        onClick={handleVideoChat}
-                        className={`${styles.actionButton} ${videoChat ? styles.videoActive : ''}`}
-                    />
+                        content={inviteContent}
+                        trigger="click"
+                        placement="bottomRight"
+                        getPopupContainer={(triggerNode) => {
+                            try {
+                                return triggerNode?.closest(`.${styles.mobileContent}`) || document.body;
+                            } catch (e) {
+                                return document.body;
+                            }
+                        }}
+                        overlayStyle={{ zIndex: 1900 }}
+                        overlayClassName={styles.inviteOverlay}
+                    >
+                        <Button type="text" icon={<ShareAltOutlined />} className={styles.actionButton} />
+                    </Popover>
                 </div>
             </div>
 
-            {/* Scrollable middle content (language + IO). On mobile this scrolls inside the sheet */}
             <div className={styles.mobileContent}>
-                {/* Language Selector */}
                 <div className={styles.controlSection}>
                     <label className={styles.controlLabel}>Language</label>
                     <Select
@@ -133,21 +104,18 @@ const SideDrawer = (props) => {
                         onChange={handleLang}
                         className={styles.languageSelect}
                         suffixIcon={<CodeOutlined />}
-                          // replace existing dropdownClassName prop
- dropdownClassName={`codecrew-lang-dropdown ${isLight ? 'light' : 'dark'}`}
-   popupMatchSelectWidth={false}
-getPopupContainer={(triggerNode) => {
-    if (!triggerNode) return document.body;
-    try {
-      if (isMobile) {
-        // prefer the nearest mobileContent container (keeps popup inside sheet)
-        return triggerNode.closest(`.${styles.mobileContent}`) || triggerNode.parentElement || document.body;
-      }
-    } catch (e) {
-      // fallback to body if anything goes wrong with class lookup
-    }
-    return document.body;
-  }}
+                        dropdownClassName={`codecrew-lang-dropdown ${isLight ? 'light' : 'dark'}`}
+                        getPopupContainer={(triggerNode) => {
+                            if (!triggerNode) return document.body;
+                            try {
+                                if (isMobile) {
+                                    return triggerNode.closest(`.${styles.mobileContent}`) || triggerNode.parentElement || document.body;
+                                }
+                            } catch (e) {
+                                return document.body;
+                            }
+                            return document.body;
+                        }}
                     >
                         {languageOptions.map(option => (
                             <Option key={option.value} value={option.value} className={styles.optionItem}>
@@ -162,42 +130,39 @@ getPopupContainer={(triggerNode) => {
 
                 <Divider className={styles.divider} />
 
-                {/* Custom Input */}
                 <div className={styles.ioSection}>
                     <div className={styles.ioHeader}>
                         <FileTextOutlined className={styles.ioIcon} />
                         <span className={styles.ioTitle}>Custom Input</span>
                     </div>
-                    <TextArea 
-                        value={input} 
-                        onChange={handleInput} 
+                    <TextArea
+                        value={input}
+                        onChange={handleInput}
                         className={`${styles.ioArea} ${styles.inputArea}`}
                         placeholder="Enter test cases here..."
                         autoSize={{ minRows: 4, maxRows: 8 }}
                     />
                 </div>
 
-                {/* Output */}
                 <div className={styles.ioSection}>
                     <div className={styles.ioHeader}>
                         <PlayCircleOutlined className={styles.ioIcon} />
                         <span className={styles.ioTitle}>Output</span>
                     </div>
-                    <TextArea 
-                        value={output} 
-                        readOnly 
+                    <TextArea
+                        value={output}
+                        readOnly
                         className={`${styles.ioArea} ${styles.outputArea}`}
                         autoSize={{ minRows: 4, maxRows: 8 }}
                     />
                 </div>
             </div>
 
-            {/* Run Section — sticky so it is always reachable */}
             <div className={styles.runSection}>
-                <Button 
-                    type="primary" 
-                    icon={<PlayCircleOutlined />} 
-                    onClick={handleRun} 
+                <Button
+                    type="primary"
+                    icon={<PlayCircleOutlined />}
+                    onClick={handleRun}
                     loading={runCodeDisabled}
                     disabled={runCodeDisabled}
                     block

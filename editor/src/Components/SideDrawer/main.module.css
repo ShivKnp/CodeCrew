@@ -855,4 +855,7 @@
   color: #172022;
   border: 1px solid rgba(16,24,32,0.06);
 }
+.hidden {
+  display: none !important;
+}
 
